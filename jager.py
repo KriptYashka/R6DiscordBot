@@ -4,19 +4,20 @@ import random
 import r6sapi as api
 
 bot = commands.Bot(command_prefix='Ягер ')
-TOKEN = 'your_token'
-email = "your_email"
-password = "your_password"
+TOKEN = 'NzAwMzUyMTg3MjE3MjE1NTU5.XpmRjQ.V_ikIFUzbd1T5mBDEdsDBhS0wFs'
+email = "hunterbot.jager@bk.ru"
+password = "Jagerthebest01"
+# email = "mr.world.of.war@gmail.com"
+# password = "PevQqc7gV29TA()"
 
 EU = api.RankedRegions.EU
-channel_memory_id = 701698041660309574 # id канала для сохранения R6-ников пользователей
+channel_memory_id = 701698041660309574
 
 text_np = ['Ну давай попробуем...', 'Ладно, щя сделаем.', 'Без проблем.',
            'Чуть синей изоленты и... Готово!', 'За **ACOG** сделаю всё, что угодно.',
            'Потерпи чуть, я не такой быстрый. У меня 2 скорости.\n*звуки плача*',
            'Ставлю **СОГ**.', 'Vierundzwanzigstundenglück!']
 text_hello = ['Guten Tag, {}', 'Здаров {}', 'Привет {}', '{} и тебе привет.']
-# id эмодзи и название ролей
 emoji_roles = {701007355956953148: 'Ассасин', 701007347904151605: 'Наёмник',
                701007349338603570: 'Док', 701007348730167346: 'Военный', 701007347534921750: 'Анархист'}
 
@@ -50,40 +51,41 @@ async def give_role(ctx, role_name):
     await ctx.send(get_random_item(text_np))
 
 
-async def send_statistic_r6(ctx, nick):
+async def send_statistic_r6(ctx, nicks):
     # text_statistic = "**Статистика игрока {}** {}\n\n".format(nick, str(bot.get_emoji(700596539499872256)))
     await ctx.send(get_random_item(text_np))
     auth = api.Auth(email, password)
-    player = await auth.get_player(nick, api.Platforms.UPLAY)
-    await player.load_general()
-    rank = await player.get_rank(EU)
-    mmr = int(rank.mmr)
+    for nick in nicks:
+        player = await auth.get_player(nick, api.Platforms.UPLAY)
+        await player.load_general()
+        rank = await player.get_rank(EU)
+        mmr = int(rank.mmr)
 
-    hours = int(player.time_played / 60 / 60)
-    if 2 <= hours % 10 <= 4:
-        str_hours = str(hours) + " часа"
-    elif hours % 10 == 1:
-        str_hours = str(hours) + " час"
-    else:
-        str_hours = str(hours) + " часов"
+        hours = int(player.time_played / 60 / 60)
+        if 2 <= hours % 10 <= 4:
+            str_hours = str(hours) + " часа"
+        elif hours % 10 == 1:
+            str_hours = str(hours) + " час"
+        else:
+            str_hours = str(hours) + " часов"
 
-    embed = discord.Embed(title="Статистика " + nick, color=0x7d17bb)
-    embed.set_author(name="Rainbow Six: Siege", icon_url=player.icon_url)
-    embed.set_thumbnail(
-        url=rank.get_icon_url())
-    embed.add_field(name="Текущее звание:", value=rank.get_bracket_name(), inline=True)
-    embed.add_field(name="Рейтинг:", value=str(mmr), inline=False)
-    embed.add_field(name="Убийства: ", value=player.kills, inline=True)
-    embed.add_field(name="Смерти", value=player.deaths, inline=True)
-    embed.add_field(name="Убийства/Смерти:", value="{:.2f}"
-                    .format(player.kills/player.deaths), inline=True)
-    embed.add_field(name="Победы:", value=player.matches_won, inline=True)
-    embed.add_field(name="Поражения:", value=player.matches_lost, inline=True)
-    embed.add_field(name="Победы/Поражения:", value="{:.2f}"
-                    .format(player.matches_won/player.matches_lost), inline=True)
-    embed.add_field(name="Время игры:", value=str_hours, inline=False)
+        embed = discord.Embed(title="Статистика " + nick, color=0x7d17bb)
+        embed.set_author(name="Rainbow Six: Siege", icon_url=player.icon_url)
+        embed.set_thumbnail(
+            url=rank.get_icon_url())
+        embed.add_field(name="Текущее звание:", value=rank.get_bracket_name(), inline=True)
+        embed.add_field(name="Рейтинг:", value=str(mmr), inline=False)
+        embed.add_field(name="Убийства: ", value=player.kills, inline=True)
+        embed.add_field(name="Смерти", value=player.deaths, inline=True)
+        embed.add_field(name="Убийства/Смерти:", value="{:.2f}"
+                        .format(player.kills / player.deaths), inline=True)
+        embed.add_field(name="Победы:", value=player.matches_won, inline=True)
+        embed.add_field(name="Поражения:", value=player.matches_lost, inline=True)
+        embed.add_field(name="Победы/Поражения:", value="{:.2f}"
+                        .format(player.matches_won / player.matches_lost), inline=True)
+        embed.add_field(name="Время игры:", value=str_hours, inline=False)
 
-    await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
     auth.close()
 
 
@@ -139,15 +141,17 @@ async def как(ctx, args):
 
 @bot.command(pass_context=True)
 async def удали(ctx, arg):
-    try:
+    member = ctx.message.author
+    required_role = discord.utils.get(member.guild.roles, name="Матёрый")
+    if member.top_role >= required_role:
         await ctx.send(get_random_item(text_np))
         if arg == 'все' or arg == 'всё' or arg is None:
             await clear_channel(ctx.channel)
         else:
             n = int(arg)
-            await clear_channel(ctx.channel, n+2)
-    except TypeError:
-        await ctx.send("Не совсем понял тебя.")
+            await clear_channel(ctx.channel, n + 2)
+    else:
+        await ctx.send("Не превышайся. У тебя нет таких прав.")
 
 
 @bot.command(pass_context=True)
@@ -174,22 +178,25 @@ async def дай(ctx, command, *args):
             nick = await find_nick_in_memory(ctx.author.id)
             if nick is None:
                 await ctx.send('Я не знаю твоего ника в R6.')
-            else:
-                await send_statistic_r6(ctx, nick)
+        else:
+            await send_statistic_r6(ctx, args)
 
 
 @bot.command(pass_context=True)
-async def рейт(ctx, nick):
+async def рейтинг(ctx, *nicks):
     await ctx.send(get_random_item(text_np))
     auth = api.Auth(email, password)
-    player = await auth.get_player(nick, api.Platforms.UPLAY)
-    rank = await player.get_rank(EU)
-    await ctx.send("**" + nick + "** - " + str(int(rank.mmr)) + ' MMR')
+    for nick in nicks:
+        player = await auth.get_player(nick, api.Platforms.UPLAY)
+        rank = await player.get_rank(EU)
+        await ctx.send("**" + nick + "** - " + str(int(rank.mmr)) + ' MMR')
     await auth.close()
 
 
 @bot.command(pass_context=True)
-async def рейт_вместе(ctx, *nicks):
+async def вместе(ctx, command, *nicks):
+    if command != "рейтинг":
+        return
     await ctx.send(get_random_item(text_np))
     auth = api.Auth(email, password)
     max_rank = 0
@@ -221,8 +228,24 @@ async def запомни(ctx, command, *args):
 async def инструкция(ctx):
     await clear_channel(ctx.channel, 1)
     guild_name = ctx.guild.name
-    emoji = str(bot.get_emoji(701757818965065759)) # Pulse, id_emoji
-    text = "{} Привет, ты на сервере **{}** {}".format(emoji, guild_name, emoji)
+    emoji = str(bot.get_emoji(701757818965065759))  # Pulse
+    emoji_point = str(bot.get_emoji(700599296650903583))
+    emoji_r6 = str(bot.get_emoji(700596539499872256))
+    text = "{} Привет, ты на сервере **{}** {}\n\n".format(emoji, guild_name, emoji)
+    text += "Если ты не знаком с правиами, советую тебе посмотреть их. Здесь очень много интересного" \
+            " и самое главное - приятное окружение.\n\n"
+    text += "Что я сообственно могу:\n\n"
+
+    text += "{} `Ягер привет` - поздороваться с тобой\n{}\n".format(emoji_point, emoji_r6)
+    text += "{} `Ягер дай статистику UPlayNick1 UPlayNick2...` - найду основную статистику в R6 {}\n{}\n".format(emoji_point,
+                                                                                                   emoji_r6, emoji_r6)
+    text += "{} `Ягер рейтинг UPlayNick1 UPlayNick2...` - скину MMR каждого игрока.\n{}\n".format(emoji_point, emoji_r6)
+    text += "{} `Ягер вместе рейтинг UPlayNick1 UPlayNick2...`" \
+            " - проанализирую, можно ли вам идти в рейтинг.\n{}\n".format(emoji_point, emoji_r6)
+    text += "{} `Ягер запомни меня UPlayNick` - постараюсь запомнить, как выглядит твой ник. Но это не точно =)\n{}\n"\
+        .format(emoji_point, emoji_r6)
+    text += "{} `Ягер инструкция` - покажу тебе ещё раз, что я умею.\n{}\n".format(emoji_point, emoji_r6)
     await ctx.send(text)
+
 
 bot.run(TOKEN)
