@@ -4,11 +4,9 @@ import random
 import r6sapi as api
 
 bot = commands.Bot(command_prefix='Ягер ')
-TOKEN = 'NzAwMzUyMTg3MjE3MjE1NTU5.XpmRjQ.V_ikIFUzbd1T5mBDEdsDBhS0wFs'
-email = "hunterbot.jager@bk.ru"
-password = "Jagerthebest01"
-# email = "mr.world.of.war@gmail.com"
-# password = "PevQqc7gV29TA()"
+TOKEN = 'Your token'
+email = "Your email"
+password = "Your Password"
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
