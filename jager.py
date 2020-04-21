@@ -11,9 +11,6 @@ bot = commands.Bot(command_prefix='Ягер ')
 # TOKEN = 'Your token'
 # email = "Your email"
 # password = "Your Password"
-TOKEN = 'NzAwMzUyMTg3MjE3MjE1NTU5.Xp4Ljg.A0ZBho3abBbGV4PPe6NXu5_SB0w'
-email = "hunterbot.jager@bk.ru"
-password = "Jagerthebest01"
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
