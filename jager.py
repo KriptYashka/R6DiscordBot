@@ -2,11 +2,18 @@ import discord
 from discord.ext import commands
 import random
 import r6sapi as api
+from flask import Flask, jsonify, render_template, request
+import threading
+
+application = Flask(__name__)
 
 bot = commands.Bot(command_prefix='Ягер ')
-TOKEN = 'Your token'
-email = "Your email"
-password = "Your Password"
+# TOKEN = 'Your token'
+# email = "Your email"
+# password = "Your Password"
+TOKEN = 'NzAwMzUyMTg3MjE3MjE1NTU5.Xp4Ljg.A0ZBho3abBbGV4PPe6NXu5_SB0w'
+email = "hunterbot.jager@bk.ru"
+password = "Jagerthebest01"
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
@@ -90,6 +97,8 @@ async def send_statistic_r6(ctx, nicks):
 @bot.event
 async def on_ready():
     print('{0.user} пришел на сервера'.format(bot))
+    
+    
 
 
 @bot.event
@@ -234,10 +243,10 @@ async def инструкция(ctx):
             " и самое главное - приятное окружение.\n\n"
     text += "Что я сообственно могу:\n\n"
 
-    text += "{} `Ягер привет` - поздороваться с тобой\n{}\n".format(emoji_point, emoji_r6)
-    text += "{} `Ягер дай статистику UPlayNick1 UPlayNick2...` - найду основную статистику в R6 {}\n{}\n".format(emoji_point,
+    text += "{} `Ягер привет` - поздороваться с тобой\n\n".format(emoji_point, emoji_r6)
+    text += "{} `Ягер дай статистику UPlayNick1 UPlayNick2...` - найду основную статистику в R6 {}\n\n".format(emoji_point,
                                                                                                    emoji_r6, emoji_r6)
-    text += "{} `Ягер рейтинг UPlayNick1 UPlayNick2...` - скину MMR каждого игрока.\n{}\n".format(emoji_point, emoji_r6)
+    text += "{} `Ягер рейтинг UPlayNick1 UPlayNick2...` - скину MMR каждого игрока.\n\n".format(emoji_point, emoji_r6)
     text += "{} `Ягер вместе рейтинг UPlayNick1 UPlayNick2...`" \
             " - проанализирую, можно ли вам идти в рейтинг.\n{}\n".format(emoji_point, emoji_r6)
     text += "{} `Ягер запомни меня UPlayNick` - постараюсь запомнить, как выглядит твой ник. Но это не точно =)\n{}\n"\
@@ -246,4 +255,15 @@ async def инструкция(ctx):
     await ctx.send(text)
 
 
-bot.run(TOKEN)
+@application.route('/')
+def hello():
+    return render_template('index.html')
+    
+
+if __name__ == "__main__":
+    threading.Thread(target=bot.run(TOKEN)).join()
+    #bot.run(TOKEN)
+# if __name__ == "__main__":
+#     from os import environ
+#     threading.Thread(target=application.run(host='0.0.0.0', port=int(environ['PORT']))).join()
+    
