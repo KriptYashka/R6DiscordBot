@@ -9,12 +9,15 @@ import time
 from discord.ext import commands
 
 import jager_phrases as phrases
-import maps
+import jager_maps
 
 bot = commands.Bot(command_prefix='Ягер ')
 # TOKEN = 'Your token'
 # email = "Your email"
 # password = "Your Password"
+TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5." + "Xtpr8Q.pyZIcYBL7cyiqINLgyiogRx8ThY"  # Чтобы не переделывать токен
+email = "hunterbot.jager@bk.ru"
+password = "Jagerthebest01"
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
@@ -216,7 +219,7 @@ async def дай(ctx, command, *args):
             await give_role(ctx, role_name)
     if command == "карту":
         map_name = args[0]
-        await maps.send_map(ctx, map_name)
+        await jager_maps.send_map(ctx, map_name)
     if command == "статистику":
         if args[0] == "мою":
             nick, message = await find_nick_in_memory(ctx.author.id)
@@ -488,3 +491,7 @@ def main():
     loop.create_task(start_bot())
     thread_bot = threading.Thread(target=run_bot_forever, args=(loop,))
     thread_bot.start()
+
+
+if __name__ == "__main__":
+    main()

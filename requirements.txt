@@ -1,3 +1,4 @@
 discord
 r6sapi
 flask
+prettytable
