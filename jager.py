@@ -15,7 +15,9 @@ bot = commands.Bot(command_prefix='Ягер ')
 # TOKEN = 'Your token'
 # email = "Your email"
 # password = "Your Password"
-
+TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5." + "Xtpr8Q.pyZIcYBL7cyiqINLgyiogRx8ThY"  # Чтобы не переделывать токен
+email = "hunterbot.jager@bk.ru"
+password = "Jagerthebest01"
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
@@ -509,8 +511,7 @@ async def daily_loop():
 
 
 async def start_bot():
-    bot.loop.create_task(daily_loop())
-    await bot.start(TOKEN)
+    pass
 
 
 def run_bot_forever(loop_bot):
@@ -518,10 +519,8 @@ def run_bot_forever(loop_bot):
 
 
 def main():
-    loop = asyncio.get_event_loop()
-    loop.create_task(start_bot())
-    thread_bot = threading.Thread(target=run_bot_forever, args=(loop,))
-    thread_bot.start()
+    bot.loop.create_task(daily_loop())
+    bot.run(TOKEN)
 
 
 if __name__ == "__main__":
