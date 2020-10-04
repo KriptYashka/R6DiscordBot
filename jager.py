@@ -443,8 +443,9 @@ async def update_daily_event_r6():
     winner_nick, killer_nick = None, None
     await auth.close()
 
-    i = 0
+    i = -1
     for player in player_batch:
+        i += 1
         if list_nicks[i] == "Игрок сменил никнейм":
             continue
         current_id = int(list_id[i])
@@ -464,8 +465,6 @@ async def update_daily_event_r6():
             killer_id = current_id
             killer_nick = list_nicks[i]
             max_kills = delta_kills
-
-        i += 1
 
     if killer_id is None and winner_id is None:
         return
@@ -504,7 +503,7 @@ async def daily_loop():
         if time_now == time_alarm:
             # Обновление таблицы лидеров и награды
             await update_daily_event_r6()
-        elif time_now[3:] == "30":
+        elif time_now[3:] == "15" or time_now[3:] == "45":
             # Обновление таблицы лидеров каждый час
             await update_table_r6()
         await asyncio.sleep(60)
