@@ -527,7 +527,7 @@ def run_bot_forever(loop_bot):
 
 def main():
     bot.loop.create_task(daily_loop())
-    bot.loop.create_task(rainbow_role())
+    # bot.loop.create_task(rainbow_role())
     bot.run(TOKEN)
 
 
