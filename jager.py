@@ -1,16 +1,14 @@
 import asyncio
 import random
-import threading
+import time
 from prettytable import PrettyTable
-import colorsys
 
 import discord
-import r6sapi as api
-import time
+import r6sapi
 from discord.ext import commands
 
 import jager_phrases as phrases
-import jager_maps as r6_maps
+from jager_maps import *
 
 bot = commands.Bot(command_prefix='Ягер ')
 # TOKEN = 'Your token'
@@ -20,7 +18,7 @@ TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5." + "Xtpr8Q.pyZIcYBL7cyiqINLgyiogRx8ThY"  # Ч
 email = "hunterbot.jager@bk.ru"
 password = "Jagerthebest01"
 
-EU = api.RankedRegions.EU
+EU = r6sapi.RankedRegions.EU
 channel_memory_id = 701698041660309574
 
 emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
@@ -30,9 +28,7 @@ emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
 """ Синхронные функции """
 
 
-def get_random_item(array):
-    index_arr = random.randint(0, len(array) - 1)
-    return array[index_arr]
+
 
 
 """ Асинхронные функции """
@@ -79,11 +75,11 @@ async def get_nick_and_message_memory(user_id):
 
 
 async def get_player_batch_r6(list_nicks):
-    auth = api.Auth(email, password)
+    auth = r6sapi.Auth(email, password)
     player_batch = []
     for nick in list_nicks:
         try:
-            player = await auth.get_player(nick, api.Platforms.UPLAY)
+            player = await auth.get_player(nick, r6sapi.Platforms.UPLAY)
             player_batch.append(player)
         except ConnectionError:
             continue
@@ -92,10 +88,10 @@ async def get_player_batch_r6(list_nicks):
 
 async def send_statistic_r6(ctx, nicks):
     await ctx.send(get_random_item(phrases.ready))
-    auth = api.Auth(email, password)
+    auth = r6sapi.Auth(email, password)
     for nick in nicks:
         try:
-            player = await auth.get_player(nick, api.Platforms.UPLAY)
+            player = await auth.get_player(nick, r6sapi.Platforms.UPLAY)
         except ConnectionError:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
             continue
@@ -176,17 +172,7 @@ async def on_raw_reaction_remove(event):
 """ Разговор с ботом """
 
 
-@bot.command(pass_context=True)
-async def привет(ctx):
-    text = get_random_item(phrases.hello).format(str(ctx.message.author.name))
-    await ctx.send(text)
 
-
-@bot.command(pass_context=True)
-async def как(ctx, arg):
-    if arg == 'научиться' or arg == 'играть':
-        text = "Никак. Удали к чертям эту игру!"
-        await ctx.send(text)
 
 
 @bot.command(pass_context=True)
@@ -249,7 +235,7 @@ async def меню_группировок(ctx):
 async def дай(ctx, command, *args):
     if command == "карту":
         map_name = args[0]
-        await r6_maps.send_map(ctx, map_name)
+        await send_map(ctx, map_name)
     if command == "статистику":
         if args[0] == "мою":
             nick, message = await get_nick_and_message_memory(ctx.author.id)
@@ -263,7 +249,7 @@ async def дай(ctx, command, *args):
 
 @bot.command(pass_context=True)
 async def рейтинг(ctx, *args):
-    auth = api.Auth(email, password)
+    auth = r6sapi.Auth(email, password)
     await ctx.send(get_random_item(phrases.ready))
     if args[0] == "вместе":
         # Совместимость игроков для рейтинга
@@ -272,7 +258,7 @@ async def рейтинг(ctx, *args):
         min_rank = 10000
         for nick in nicks:
             try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
+                player = await auth.get_player(nick, r6sapi.Platforms.UPLAY)
             except ConnectionError:
                 await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
                 continue
@@ -291,7 +277,7 @@ async def рейтинг(ctx, *args):
         nicks = args[:]
         for nick in nicks:
             try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
+                player = await auth.get_player(nick, r6sapi.Platforms.UPLAY)
             except ConnectionError:
                 await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
                 continue
@@ -318,8 +304,8 @@ async def запомни(ctx, command, *args):
             return await ctx.send(get_random_item(phrases.ready) + "\nХа! Я тебя и так знаю =)")
         # Существующий пользователь
         try:
-            auth = api.Auth(email, password)
-            player = await auth.get_player(args[0], api.Platforms.UPLAY)
+            auth = r6sapi.Auth(email, password)
+            player = await auth.get_player(args[0], r6sapi.Platforms.UPLAY)
         except ConnectionError:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
         await player.load_general()
@@ -331,8 +317,8 @@ async def запомни(ctx, command, *args):
         # Новый пользователь
         channel_memory = bot.get_channel(channel_memory_id)
         try:
-            auth = api.Auth(email, password)
-            player = await auth.get_player(args[0], api.Platforms.UPLAY)
+            auth = r6sapi.Auth(email, password)
+            player = await auth.get_player(args[0], r6sapi.Platforms.UPLAY)
         except ConnectionError:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
         await player.load_general()
@@ -346,12 +332,12 @@ async def запомни(ctx, command, *args):
 
 async def get_table_r6():
     list_messages = await get_all_memory()
-    auth = api.Auth(email, password)
+    auth = r6sapi.Auth(email, password)
     list_id, list_nicks, list_wins, list_kills = [], [], [], []
     player_batch = []
     for item in list_messages:
         try:
-            player = await auth.get_player(name=item.split()[1], platform=api.Platforms.UPLAY)
+            player = await auth.get_player(name=item.split()[1], platform=r6sapi.Platforms.UPLAY)
             await player.load_general()
             player_batch.append(player)
 
@@ -416,7 +402,7 @@ async def update_table_r6():
 
 
 async def update_daily_event_r6():
-    auth = api.Auth(email, password)
+    auth = r6sapi.Auth(email, password)
     guild = bot.get_guild(700357287700594708)
     channel_tops = guild.get_channel(703705481876733983)
     role = guild.get_role(703744789035876393)  # Выдача роли
@@ -431,7 +417,7 @@ async def update_daily_event_r6():
         list_wins.append(item.split()[2])
         list_kills.append(item.split()[3])
         try:
-            player = await auth.get_player(name=item.split()[1], platform=api.Platforms.UPLAY)
+            player = await auth.get_player(name=item.split()[1], platform=r6sapi.Platforms.UPLAY)
             await player.load_general()
             player_batch.append(player)
             list_nicks.append(item.split()[1])
@@ -504,22 +490,6 @@ async def daily_loop():
             await update_table_r6()
         await asyncio.sleep(60)
 
-async def rainbow_role():
-    await asyncio.sleep(10)
-    server = bot.get_guild(700357287700594708)
-    role = discord.utils.get(server.roles, name="Happy Birthday")
-    current_color = [0, 1, 1]
-    while True:
-        current_color[0] += 0.2
-        if current_color[0] > 1:
-            current_color[0] -= 1
-
-        rgb = colorsys.hsv_to_rgb(current_color[0], current_color[1], current_color[2])
-        rgb_code = rgb[0] * 255**3 + rgb[1] * 255**2 + rgb[2] * 255
-        print(hex(int(rgb_code)))
-        await role.edit(colour=discord.Colour(int(rgb_code)))
-        await asyncio.sleep(5)
-
 
 def run_bot_forever(loop_bot):
     loop_bot.run_forever()
@@ -527,7 +497,6 @@ def run_bot_forever(loop_bot):
 
 def main():
     bot.loop.create_task(daily_loop())
-    # bot.loop.create_task(rainbow_role())
     bot.run(TOKEN)
 
 
