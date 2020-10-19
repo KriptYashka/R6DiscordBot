@@ -2,7 +2,6 @@ import asyncio
 import random
 import threading
 from prettytable import PrettyTable
-import colorsys
 
 import discord
 import r6sapi as api
@@ -489,7 +488,7 @@ async def update_daily_event_r6():
     await channel_tops.send(text)
     await send_table_r6(channel_tops)
     await update_daily_data_r6(player_batch)
-
+    
 
 async def daily_loop():
     await asyncio.sleep(10)
@@ -504,21 +503,9 @@ async def daily_loop():
             await update_table_r6()
         await asyncio.sleep(60)
 
-async def rainbow_role():
-    await asyncio.sleep(10)
-    server = bot.get_guild(700357287700594708)
-    role = discord.utils.get(server.roles, name="Happy Birthday")
-    current_color = [0, 1, 1]
-    while True:
-        current_color[0] += 0.2
-        if current_color[0] > 1:
-            current_color[0] -= 1
 
-        rgb = colorsys.hsv_to_rgb(current_color[0], current_color[1], current_color[2])
-        rgb_code = rgb[0] * 255**3 + rgb[1] * 255**2 + rgb[2] * 255
-        print(hex(int(rgb_code)))
-        await role.edit(colour=discord.Colour(int(rgb_code)))
-        await asyncio.sleep(5)
+async def start_bot():
+    pass
 
 
 def run_bot_forever(loop_bot):
@@ -527,7 +514,6 @@ def run_bot_forever(loop_bot):
 
 def main():
     bot.loop.create_task(daily_loop())
-    # bot.loop.create_task(rainbow_role())
     bot.run(TOKEN)
 
 
