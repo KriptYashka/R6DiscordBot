@@ -11,13 +11,17 @@ from discord.ext import commands
 import jager_phrases as phrases
 import jager_maps as r6_maps
 
-bot = commands.Bot(command_prefix='Ягер ')
+import jager_function.events
+
+
 # TOKEN = 'Your token'
 # email = "Your email"
 # password = "Your Password"
 TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5." + "Xtpr8Q.pyZIcYBL7cyiqINLgyiogRx8ThY"  # Чтобы не переделывать токен
 email = "hunterbot.jager@bk.ru"
 password = "Jagerthebest01"
+bot = commands.Bot(command_prefix='Ягер ')
+
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
@@ -28,6 +32,10 @@ emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
 
 """ Синхронные функции """
 
+@bot.event
+async def on_ready():
+
+    await jager_function.events.on_ready()
 
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
@@ -134,11 +142,6 @@ async def send_statistic_r6(ctx, nicks):
 
 
 """ Стандартные события """
-
-
-@bot.event
-async def on_ready():
-    print("{0.user} пришел на сервера".format(bot))
 
 
 @bot.event
