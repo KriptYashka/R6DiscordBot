@@ -1,5 +1,5 @@
 from jager import clear_channel, get_random_item, phrases, r6_maps, get_nick_and_message_memory, email, password, \
-    api, EU
+    api, EU, bot
 import discord
 
 async def send_statistic_r6(ctx, nicks):
@@ -92,7 +92,7 @@ async def menu(bot, emoji_roles):
     for id_emoji in emoji_roles:
         await message.add_reaction(bot.get_emoji(id_emoji))
 
-async def get_something(ctx, command, args):
+async def get_something(ctx, command, *args):
     if command == "карту":
         map_name = args[0]
         await r6_maps.send_map(ctx, map_name)

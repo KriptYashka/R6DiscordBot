@@ -26,6 +26,7 @@ bot = commands.Bot(command_prefix='Ягер ')
 
 EU = api.RankedRegions.EU
 channel_memory_id = 701698041660309574
+channel_memory = None
 
 emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
                756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
@@ -57,7 +58,7 @@ async def clear_channel(channel, n=1000):
 
 async def get_all_memory():
     list_messages = []
-    channel_memory = bot.get_channel(channel_memory_id)
+    channel_memory = await bot.get_channel(channel_memory_id)
     async for message in channel_memory.history():
         list_messages.append(message.content)
     return list_messages
@@ -65,7 +66,7 @@ async def get_all_memory():
 
 async def get_nicks_memory():
     list_players = []
-    channel_memory = bot.get_channel(channel_memory_id)
+    channel_memory = await bot.get_channel(channel_memory_id)
     async for message in channel_memory.history():
         list_players.append(message.content.split()[1])
     return list_players
@@ -102,6 +103,7 @@ async def get_player_batch_r6(list_nicks):
 @bot.event
 async def on_ready():
     jager_event.on_ready(bot)
+    channel_memory = bot.get_channel(channel_memory_id)
 
 @bot.event
 async def on_member_join(member):
@@ -154,7 +156,19 @@ async def меню_группировок(ctx):
 
 @bot.command(pass_context=True)
 async def дай(ctx, command, *args):
-    await jager_cmd.get_something(ctx, command, args)
+    await jager_cmd.get_something(ctx, command, *args)
+    # if command == "карту":
+    #     map_name = args[0]
+    #     await r6_maps.send_map(ctx, map_name)
+    # if command == "статистику":
+    #     if args[0] == "мою":
+    #         nick, message = await get_nick_and_message_memory(ctx.author.id)
+    #         if nick is None:
+    #             await ctx.send('Я не знаю твоего ника в R6. Но я могу запомнить тебя!\n'
+    #                            'Пример: `Ягер запомни меня KriptYashka`')
+    #         await jager_cmd.send_statistic_r6(ctx, [nick])
+    #     else:
+    #         await jager_cmd.send_statistic_r6(ctx, args)
 
 
 @bot.command(pass_context=True)
