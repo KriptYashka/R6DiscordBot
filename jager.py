@@ -11,7 +11,8 @@ from discord.ext import commands
 import jager_phrases as phrases
 import jager_maps as r6_maps
 
-import jager_function.events
+import jager_function.events as jager_event
+import jager_function.commands as jager_cmd
 
 
 # TOKEN = 'Your token'
@@ -28,14 +29,10 @@ channel_memory_id = 701698041660309574
 
 emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
                756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
-               756611247889317918: 'Valorant'}
+               756611247889317918: 'Valorant', 761243822716878859: 'Imposter'}
 
 """ Синхронные функции """
 
-@bot.event
-async def on_ready():
-
-    await jager_function.events.on_ready()
 
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
@@ -97,82 +94,28 @@ async def get_player_batch_r6(list_nicks):
     return player_batch
 
 
-async def send_statistic_r6(ctx, nicks):
-    await ctx.send(get_random_item(phrases.ready))
-    auth = api.Auth(email, password)
-    for nick in nicks:
-        try:
-            player = await auth.get_player(nick, api.Platforms.UPLAY)
-        except ConnectionError:
-            await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-            continue
-        await player.load_general()
 
-        rank = await player.get_rank(EU)
-        mmr = int(rank.mmr)
-        hours = int(player.time_played / 60 / 60)
-
-        # Лексика
-        if 2 <= hours % 10 <= 4:
-            str_hours = str(hours) + " часа"
-        elif hours % 10 == 1:
-            str_hours = str(hours) + " час"
-        else:
-            str_hours = str(hours) + " часов"
-
-        # Формирование карточки
-        embed = discord.Embed(title="Статистика " + nick, color=0x7d17bb)
-        embed.set_author(name="Rainbow Six: Siege", icon_url=player.icon_url)
-        embed.set_thumbnail(
-            url=rank.get_icon_url())
-        embed.add_field(name="Текущее звание:", value=rank.get_bracket_name(), inline=True)
-        embed.add_field(name="Рейтинг:", value=str(mmr), inline=False)
-        embed.add_field(name="Убийства: ", value=player.kills, inline=True)
-        embed.add_field(name="Смерти", value=player.deaths, inline=True)
-        embed.add_field(name="Убийства/Смерти:", value="{:.2f}"
-                        .format(player.kills / player.deaths), inline=True)
-        embed.add_field(name="Победы:", value=player.matches_won, inline=True)
-        embed.add_field(name="Поражения:", value=player.matches_lost, inline=True)
-        embed.add_field(name="Победы/Поражения:", value="{:.2f}"
-                        .format(player.matches_won / player.matches_lost), inline=True)
-        embed.add_field(name="Время игры:", value=str_hours, inline=False)
-
-        await ctx.send(embed=embed)
-    auth.close()
 
 
 """ Стандартные события """
 
+@bot.event
+async def on_ready():
+    jager_event.on_ready(bot)
 
 @bot.event
 async def on_member_join(member):
-    server = member.guild
-    role = discord.utils.get(server.roles, name="Новичок")
+    role = discord.utils.get(member.guild.roles, name="Новичок")
     await member.add_roles(role)
 
 
 @bot.event
 async def on_raw_reaction_add(event):
-    emoji = event.emoji
-    user = event.member
-    if bot.user == user:
-        return
-    if emoji_roles[emoji.id] is not None:
-        role = discord.utils.get(user.guild.roles, name=emoji_roles[emoji.id])
-        await user.add_roles(role)
-
+    await jager_event.reaction_add(bot, event, emoji_roles)
 
 @bot.event
 async def on_raw_reaction_remove(event):
-    emoji = event.emoji
-    guild = bot.get_guild(event.guild_id)
-    member = guild.get_member(event.user_id)
-
-    if bot.user == member:
-        return
-    if emoji_roles[emoji.id] is not None:
-        role = discord.utils.get(member.guild.roles, name=emoji_roles[emoji.id])
-        await member.remove_roles(role)
+    await jager_event.reaction_delete(bot, event, emoji_roles)
 
 
 """ Разговор с ботом """
@@ -193,26 +136,7 @@ async def как(ctx, arg):
 
 @bot.command(pass_context=True)
 async def инструкция(ctx):
-    await clear_channel(ctx.channel, 1)
-    guild_name = ctx.guild.name
-    emoji_pulse = str(bot.get_emoji(701757818965065759))  # Pulse
-    emoji_point = str(bot.get_emoji(700599296650903583))
-    emoji_r6 = str(bot.get_emoji(700596539499872256))
-    text = "{} Привет, ты на сервере **{}** {}\n\n".format(emoji_pulse, guild_name, emoji_pulse)
-    text += "Если ты не знаком с правиами, советую тебе посмотреть их. Здесь очень много интересного" \
-            " и самое главное - приятное окружение.\n\n"
-    text += "Что я сообственно могу:\n\n"
-
-    text += "{} `Ягер привет` - поздороваться с тобой\n\n".format(emoji_point)
-    text += "{} `Ягер дай статистику UPlayNick1 UPlayNick2...` - найду основную статистику в R6 {}\n\n".format(
-        emoji_point, emoji_r6)
-    text += "{} `Ягер рейтинг UPlayNick1 UPlayNick2...` - скину MMR каждого игрока.\n\n".format(emoji_point)
-    text += "{} `Ягер рейтинг вместе UPlayNick1 UPlayNick2...`" \
-            " - проанализирую, можно ли вам идти в рейтинг.\n\n".format(emoji_point)
-    text += "{} `Ягер запомни меня UPlayNick` - постараюсь запомнить, как выглядит твой ник. Но это не точно =)\n\n" \
-        .format(emoji_point)
-    text += "{} `Ягер инструкция` - покажу тебе ещё раз, что я умею.\n\n".format(emoji_point)
-    await ctx.send(text)
+    await jager_cmd.instruction(bot, ctx)
 
 
 """ Работа с чатом """
@@ -220,86 +144,22 @@ async def инструкция(ctx):
 
 @bot.command(pass_context=True)
 async def удали(ctx, arg):
-    member = ctx.message.author
-    # Требуемая роль для выполнения команды
-    role = discord.utils.get(member.guild.roles, name="Матёрый")
-    if member.top_role < role:
-        return await ctx.send(get_random_item(phrases.no_roots))
-
-    if arg == 'все' or arg == 'всё' or arg is None:
-        await clear_channel(ctx.channel)
-    else:
-        n = int(arg)
-        await clear_channel(ctx.channel, n + 1)
+    await jager_cmd.delete_message(ctx, arg)
 
 
 @bot.command(pass_context=True)
 async def меню_группировок(ctx):
-    channel_role = bot.get_channel(700806731260755978)
-
-    text = "Привет! Выбирай, в какую игру ты играешь, чтобы скорее найти себе друзей ^_^:\n"
-    for item in emoji_roles.items():
-        text += "\n - " + str(bot.get_emoji(item[0])) + " " + item[1]
-    text += "\n\n**Have a good day**!"
-
-    message = await channel_role.send(text)
-    for id_emoji in emoji_roles:
-        await message.add_reaction(bot.get_emoji(id_emoji))
+    await jager_cmd.menu(bot, emoji_roles)
 
 
 @bot.command(pass_context=True)
 async def дай(ctx, command, *args):
-    if command == "карту":
-        map_name = args[0]
-        await r6_maps.send_map(ctx, map_name)
-    if command == "статистику":
-        if args[0] == "мою":
-            nick, message = await get_nick_and_message_memory(ctx.author.id)
-            if nick is None:
-                await ctx.send('Я не знаю твоего ника в R6. Но я могу запомнить тебя!\n'
-                               'Пример: `Ягер запомни меня KriptYashka`')
-            await send_statistic_r6(ctx, [nick])
-        else:
-            await send_statistic_r6(ctx, args)
+    await jager_cmd.get_something(ctx, command, args)
 
 
 @bot.command(pass_context=True)
 async def рейтинг(ctx, *args):
-    auth = api.Auth(email, password)
-    await ctx.send(get_random_item(phrases.ready))
-    if args[0] == "вместе":
-        # Совместимость игроков для рейтинга
-        nicks = args[1:]
-        max_rank = 0
-        min_rank = 10000
-        for nick in nicks:
-            try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
-            except ConnectionError:
-                await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-                continue
-            rank = await player.get_rank(EU)
-            max_rank = max(max_rank, int(rank.mmr))
-            min_rank = min(min_rank, int(rank.mmr))
-        delta = max_rank - min_rank
-        str_delta = "Текущая разница: " + str(delta) + " MMR"
-        if delta >= 1000:
-            text = "К сожалению, вы не сможете сыграть... \n" + str_delta
-        else:
-            text = "Можно играть без проблем! \n" + str_delta
-        await ctx.send(text)
-    else:
-        # Рейтинг игроков по отдельности
-        nicks = args[:]
-        for nick in nicks:
-            try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
-            except ConnectionError:
-                await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-                continue
-            rank = await player.get_rank(EU)
-            await ctx.send("**" + nick + "** - " + str(int(rank.mmr)) + ' MMR')
-    await auth.close()
+    pass
 
 
 @bot.command(pass_context=True)
