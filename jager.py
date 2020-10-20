@@ -64,8 +64,8 @@ async def меню_группировок(ctx):
     await jager_cmd.menu(bot, emoji_roles)
 
 @bot.command(pass_context=True)
-async def эхо(ctx):
-    await jager_cmd.echo(ctx)
+async def эхо(ctx, arg):
+    await jager_cmd.echo(ctx, arg)
 
 
 """   Работа с чатом   """

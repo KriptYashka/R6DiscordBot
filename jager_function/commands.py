@@ -215,6 +215,6 @@ async def register_user(bot, ctx, command, *args):
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
 
 
-async def echo(ctx):
+async def echo(ctx, words):
     await clear_channel(ctx.channel, 1)
-    await ctx.send(ctx)
+    await ctx.send(words)
