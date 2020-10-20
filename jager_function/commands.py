@@ -216,4 +216,5 @@ async def register_user(bot, ctx, command, *args):
 
 
 async def echo(ctx):
+    await clear_channel(ctx.channel, 1)
     await ctx.send(ctx)
