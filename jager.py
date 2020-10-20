@@ -1,4 +1,5 @@
 import asyncio
+import random
 import time
 import discord
 from discord.ext import commands
@@ -94,17 +95,32 @@ async def запомни(ctx, command, *args):
 
 """   Сезонные события   """
 
+def get_random_time():
+    start = "12:00"
+    end = "22:00"
+    if random.randint(1, 10) > 4:
+        return None
+    hour = random.randint(12, 22)
+    minutes = random.randint(0, 59)
+    return str(hour) + ":" + str(minutes)
+
 async def daily_loop():
     await asyncio.sleep(10)
     time_alarm = "19:00"
+    random_time = get_random_time()
     while True:
         time_now = time.strftime("%H:%M", time.localtime())
         if time_now == time_alarm:
             # Обновление таблицы лидеров и награды
+            random_time = get_random_time()
             await jager_season.update_daily_event_r6(bot)
         elif time_now[3:] == "15" or time_now[3:] == "45":
             # Обновление таблицы лидеров каждый час
             await jager_season.update_table_r6(bot)
+
+        if random_time is not None:
+            if time_now == random_time:
+                await jager_season.send_random_msg(bot)
         await asyncio.sleep(60)
 
 

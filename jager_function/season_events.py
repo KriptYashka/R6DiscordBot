@@ -154,3 +154,8 @@ async def update_daily_event_r6(bot):
     await channel_tops.send(text)
     await send_table_r6(bot, channel_tops)
     await update_daily_data_r6(bot, player_batch)
+
+
+async def send_random_msg(bot):
+    channel = bot.get_channel(700465669522849802)
+    await channel.send(get_random_item(phrases.random_message))
