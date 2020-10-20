@@ -213,3 +213,7 @@ async def register_user(bot, ctx, command, *args):
             await auth.close()
         except:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
+
+
+async def echo(ctx):
+    await ctx.send(ctx)

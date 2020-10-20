@@ -18,14 +18,6 @@ emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
                756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
                756611247889317918: 'Valorant', 761243822716878859: 'Imposter'}
 
-
-
-
-"""   Синхронные функции   """
-
-
-
-
 """   Стандартные события   """
 
 @bot.event
@@ -70,6 +62,10 @@ async def инструкция(ctx):
 @bot.command(pass_context=True)
 async def меню_группировок(ctx):
     await jager_cmd.menu(bot, emoji_roles)
+
+@bot.command(pass_context=True)
+async def эхо(ctx):
+    await jager_cmd.echo(ctx)
 
 
 """   Работа с чатом   """
