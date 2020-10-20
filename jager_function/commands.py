@@ -3,6 +3,7 @@ import random
 from jager_function.global_variable import *
 from jager_function import jager_maps as r6_maps
 import jager_function.data as data
+from classes.classes import PlayerR6
 
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
@@ -27,18 +28,9 @@ async def get_player_batch_r6(list_nicks):
 
 async def send_statistic_r6(ctx, nicks):
     await ctx.send(get_random_item(phrases.ready))
-    auth = api.Auth(jager_email, jager_password)
     for nick in nicks:
-        try:
-            player = await auth.get_player(nick, api.Platforms.UPLAY)
-        except:
-            await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-            continue
-        await player.load_general()
-
-        rank = await player.get_rank(EU)
-        mmr = int(rank.mmr)
-        hours = int(player.time_played / 60 / 60)
+        player = await PlayerR6(nick).get_stats()
+        hours = player.time_played
 
         # Лексика
         if 2 <= hours % 10 <= 4:
@@ -51,22 +43,17 @@ async def send_statistic_r6(ctx, nicks):
         # Формирование карточки
         embed = discord.Embed(title="Статистика " + nick, color=0x7d17bb)
         embed.set_author(name="Rainbow Six: Siege", icon_url=player.icon_url)
-        embed.set_thumbnail(
-            url=rank.get_icon_url())
-        embed.add_field(name="Текущее звание:", value=rank.get_bracket_name(), inline=True)
-        embed.add_field(name="Рейтинг:", value=str(mmr), inline=False)
+        embed.set_thumbnail(url=player.rank.get_icon_url())
+        embed.add_field(name="Текущее звание:", value=player.rank.get_bracket_name(), inline=True)
+        embed.add_field(name="Рейтинг:", value=str(player.mmr), inline=False)
         embed.add_field(name="Убийства: ", value=player.kills, inline=True)
         embed.add_field(name="Смерти", value=player.deaths, inline=True)
-        embed.add_field(name="Убийства/Смерти:", value="{:.2f}"
-                        .format(player.kills / player.deaths), inline=True)
-        embed.add_field(name="Победы:", value=player.matches_won, inline=True)
-        embed.add_field(name="Поражения:", value=player.matches_lost, inline=True)
-        embed.add_field(name="Победы/Поражения:", value="{:.2f}"
-                        .format(player.matches_won / player.matches_lost), inline=True)
+        embed.add_field(name="Убийства/Смерти:", value="{:.2f}".format(player.kills / player.deaths), inline=True)
+        embed.add_field(name="Победы:", value=player.wins, inline=True)
+        embed.add_field(name="Поражения:", value=player.loses, inline=True)
+        embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.win / player.loses), inline=True)
         embed.add_field(name="Время игры:", value=str_hours, inline=False)
-
         await ctx.send(embed=embed)
-    auth.close()
 
 
 async def instruction(bot, ctx):
