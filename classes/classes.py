@@ -37,13 +37,13 @@ class PlayerR6:
         except:
             return
         await player.load_general()
-        rank = await player.get_rank(EU)
-        self.rank = rank
-        self.mmr = int(rank.mmr)
+        # rank = await player.get_rank(EU)
+        # self.rank = rank
+        # self.mmr = int(rank.mmr)
         self.kills = player.kills
         self.deaths = player.deaths
         self.wins = player.matches_won
-        self.deaths = player.matches_lost
+        self.loses = player.matches_lost
         self.time_played = int(player.time_played / 60 / 60)
         self.icon_url = player.icon_url
 
