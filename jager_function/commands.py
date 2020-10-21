@@ -29,7 +29,8 @@ async def get_player_batch_r6(list_nicks):
 async def send_statistic_r6(ctx, nicks):
     await ctx.send(get_random_item(phrases.ready))
     for nick in nicks:
-        player = await PlayerR6(nick).get_stats()
+        player = PlayerR6(nick)
+        await player.get_stats()
         hours = player.time_played
 
         # Лексика

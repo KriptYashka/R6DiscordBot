@@ -1,4 +1,10 @@
-from jager_function.global_variable import *
+import r6sapi as api
+
+EU = api.RankedRegions.EU
+jager_email = "hunterbot.jager@bk.ru"
+jager_password = "Jagerthebest01"
+jager_email = "mr.world.of.war@gmail.com"
+jager_password = "r6PevQqc7gV29TA"
 
 class PlayerR6:
     def __init__(self, nickname, member_id = -1):
@@ -19,6 +25,7 @@ class PlayerR6:
         # Прочее
         self.rank = 0
         self.time_played = 0
+        self.icon_url = 0
 
     async def get_stats(self):
         """
@@ -28,17 +35,17 @@ class PlayerR6:
         try:
             player = await auth.get_player(self.nickname, api.Platforms.UPLAY)
         except:
-            auth.close()
-            return None
+            return
         await player.load_general()
-        auth.close()
-        self.rank = await player.get_rank(EU)
-        self.mmr = int(self.rank.mmr)
+        rank = await player.get_rank(EU)
+        self.rank = rank
+        self.mmr = int(rank.mmr)
         self.kills = player.kills
         self.deaths = player.deaths
         self.wins = player.matches_won
         self.deaths = player.matches_lost
         self.time_played = int(player.time_played / 60 / 60)
+        self.icon_url = player.icon_url
 
     async def update_daily_stats(self):
         await self.get_stats()
