@@ -30,7 +30,6 @@ async def send_statistic_r6(ctx, nicks):
     await ctx.send(get_random_item(phrases.ready))
     for nick in nicks:
         player = PlayerR6(nick)
-        await player.get_stats()
         hours = player.time_played
 
         # Лексика
@@ -44,9 +43,9 @@ async def send_statistic_r6(ctx, nicks):
         # Формирование карточки
         embed = discord.Embed(title="Статистика " + nick, color=0x7d17bb)
         embed.set_author(name="Rainbow Six: Siege", icon_url=player.icon_url)
-        #embed.set_thumbnail(url=player.rank.get_icon_url())
-        #embed.add_field(name="Текущее звание:", value=player.rank.get_bracket_name(), inline=True)
-        #embed.add_field(name="Рейтинг:", value=str(player.mmr), inline=False)
+        embed.set_thumbnail(url=player.rank_url)
+        embed.add_field(name="Текущее звание:", value=player.rank_name, inline=True)
+        embed.add_field(name="Рейтинг:", value=str(player.mmr), inline=False)
         embed.add_field(name="Убийства: ", value=player.kills, inline=True)
         embed.add_field(name="Смерти", value=player.deaths, inline=True)
         embed.add_field(name="Убийства/Смерти:", value="{:.2f}".format(player.kills / player.deaths), inline=True)
@@ -123,7 +122,6 @@ async def get_something(bot, ctx, command, *args):
 
 
 async def rating(ctx, *args):
-    auth = api.Auth(jager_email, jager_password)
     await ctx.send(get_random_item(phrases.ready))
     if args[0] == "вместе":
         # Совместимость игроков для рейтинга
@@ -131,14 +129,10 @@ async def rating(ctx, *args):
         max_rank = 0
         min_rank = 10000
         for nick in nicks:
-            try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
-            except ConnectionError:
-                await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-                continue
-            rank = await player.get_rank(EU)
-            max_rank = max(max_rank, int(rank.mmr))
-            min_rank = min(min_rank, int(rank.mmr))
+            player = PlayerR6(nick)
+            mmr = player.mmr
+            max_rank = max(max_rank, mmr)
+            min_rank = min(min_rank, mmr)
         delta = max_rank - min_rank
         str_delta = "Текущая разница: " + str(delta) + " MMR"
         if delta >= 1000:
@@ -150,14 +144,7 @@ async def rating(ctx, *args):
         # Рейтинг игроков по отдельности
         nicks = args[:]
         for nick in nicks:
-            try:
-                player = await auth.get_player(nick, api.Platforms.UPLAY)
-            except ConnectionError:
-                await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-                continue
-            rank = await player.get_rank(EU)
-            await ctx.send("**" + nick + "** - " + str(int(rank.mmr)) + ' MMR')
-    await auth.close()
+            await ctx.send("**" + nick + "** - " + str(PlayerR6(nick).mmr) + ' MMR')
 
 
 async def register_user(bot, ctx, command, *args):

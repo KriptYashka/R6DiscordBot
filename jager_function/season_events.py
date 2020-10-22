@@ -74,7 +74,7 @@ async def update_table_r6(bot):
     guild = bot.get_guild(700357287700594708)
     channel_tops = guild.get_channel(703705481876733983)
     await clear_channel(channel_tops, 1)
-    await send_table_r6(channel_tops, channel_tops)
+    await send_table_r6(bot, channel_tops)
 
 
 async def update_daily_event_r6(bot):

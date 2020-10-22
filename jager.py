@@ -83,9 +83,9 @@ async def дай(ctx, command, *args):
     await jager_cmd.get_something(bot, ctx, command, *args)
 
 
-# @bot.command(pass_context=True)
-# async def рейтинг(ctx, *args):
-#     await jager_cmd.rating(ctx, *args)
+@bot.command(pass_context=True)
+async def рейтинг(ctx, *args):
+    await jager_cmd.rating(ctx, *args)
 
 
 @bot.command(pass_context=True)
