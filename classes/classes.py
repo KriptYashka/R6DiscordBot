@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import asyncio
+import sqlite3
 
 jager_email = "hunterbot.jager@bk.ru"
 jager_password = "Jagerthebest01"
@@ -18,6 +19,13 @@ def to_digital(word):
 
 class PlayerR6:
     def __init__(self, nickname, member_id = -1):
+        """
+        Класс игрока R6.
+        Имеет статистику: убийства, смерти, победы, проигрыши, время игры, ММР.
+        Дополнительная информация: ID участника сервера, URL аватара аккаунта UPlay.
+
+        При инициализации подгружаются все данные.
+        """
         self.nickname = nickname
         self.member_id = member_id
         # Основная статистика
@@ -36,9 +44,10 @@ class PlayerR6:
         self.last_wins = None
         self.last_loses = None
         self.last_mmr = None
-        # Прочее
 
-    async def load_stats(self):
+        self.load_stats()
+
+    def load_stats(self):
         """
         Загружает основную статистику
         """
@@ -55,8 +64,8 @@ class PlayerR6:
                 self.mmr = to_digital(stat.find('div', {'class': 'trn-defstat__value'}).contents[0])
 
 
-    async def update_daily_stats(self):
-        await self.load_stats()
+    def update_daily_stats(self):
+        self.load_stats()
         self.last_kills = self.kills
         self.last_deaths = self.deaths
         self.last_wins = self.wins
@@ -64,9 +73,18 @@ class PlayerR6:
         self.last_mmr = self.mmr
 
 
+class DataBaseR6:
+    def __init__(self):
+        self.conn = sqlite3.connect("r6_players.db")
+        self.cursor = self.conn.cursor()
+
+    def create_table(self):
+        self.cursor.execute("""CREATE TABLE R6_players 
+        (title text, artist text, release_date text, publisher text, media_type text)""")
+
 async def main():
     ab = PlayerR6("KriptYashka")
-    await ab.load_stats()
+    db = DataBaseR6()
     print(ab.mmr)
 
 asyncio.run(main())
