@@ -1,57 +1,72 @@
-import r6sapi as api
+from bs4 import BeautifulSoup
+import requests
+import asyncio
 
-EU = api.RankedRegions.EU
 jager_email = "hunterbot.jager@bk.ru"
 jager_password = "Jagerthebest01"
-jager_email = "mr.world.of.war@gmail.com"
-jager_password = "r6PevQqc7gV29TA"
+url_tracker = "https://r6.tracker.network/profile/pc/"
+r6_data = []
+
+
+def to_digital(word):
+    res = ""
+    for symbol in word:
+        if '0' <= symbol <= '9':
+            res += symbol
+    return res
+
 
 class PlayerR6:
     def __init__(self, nickname, member_id = -1):
         self.nickname = nickname
         self.member_id = member_id
         # Основная статистика
-        self.kills = 0
-        self.deaths = 0
-        self.wins = 0
-        self.loses = 0
-        self.mmr = 0
+        self.kills = None
+        self.deaths = None
+        self.wins = None
+        self.loses = None
+        self.time_played = None
+        self.data = [[self.kills, "PVPKills"], [self.deaths, "PVPDeaths"], [self.wins, "PVPMatchesWon"],
+                     [self.loses, "PVPMatchesLost"], [self.time_played, "PVPTimePlayed"]]
+        self.mmr = None
+        self.icon_url = None,
         # Предыдущая статистика
-        self.last_kills = 0
-        self.last_deaths = 0
-        self.last_wins = 0
-        self.last_loses = 0
-        self.last_mmr = 0
+        self.last_kills = None
+        self.last_deaths = None
+        self.last_wins = None
+        self.last_loses = None
+        self.last_mmr = None
         # Прочее
-        self.rank = 0
-        self.time_played = 0
-        self.icon_url = 0
 
-    async def get_stats(self):
+    async def load_stats(self):
         """
         Загружает основную статистику
         """
-        auth = api.Auth(jager_email, jager_password)
-        try:
-            player = await auth.get_player(self.nickname, api.Platforms.UPLAY)
-        except:
-            return
-        await player.load_general()
-        # rank = await player.get_rank(EU)
-        # self.rank = rank
-        # self.mmr = int(rank.mmr)
-        self.kills = player.kills
-        self.deaths = player.deaths
-        self.wins = player.matches_won
-        self.loses = player.matches_lost
-        self.time_played = int(player.time_played / 60 / 60)
-        self.icon_url = player.icon_url
+        url = url_tracker + self.nickname
+        full_page = requests.get(url)
+        soup = BeautifulSoup(full_page.content, 'html.parser')
+        for item in self.data:
+            item[0] = to_digital(soup.find('div', {'data-stat': item[1]}).contents[0])
+        self.icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
+        trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
+        for stat in trn_defstat:
+            div_text = stat.find('div', {'class': 'trn-defstat__name'})
+            if div_text.next_element == "MMR":
+                self.mmr = to_digital(stat.find('div', {'class': 'trn-defstat__value'}).contents[0])
+
 
     async def update_daily_stats(self):
-        await self.get_stats()
+        await self.load_stats()
         self.last_kills = self.kills
         self.last_deaths = self.deaths
         self.last_wins = self.wins
         self.last_loses = self.loses
         self.last_mmr = self.mmr
 
+
+async def main():
+    ab = PlayerR6("KriptYashka")
+    await ab.load_stats()
+    print(ab.mmr)
+
+asyncio.run(main())
