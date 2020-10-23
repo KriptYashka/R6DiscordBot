@@ -17,7 +17,7 @@ def to_digital(word):
     return int(res)
 
 rank_icons = {
-            "UNRANKED": "https://i.imgur.com/sB11BIz.png",  # unranked
+            "-": "https://i.imgur.com/sB11BIz.png",  # unranked
             "COOPER I": "https://i.imgur.com/0J0jSWB.jpg",  # copper 1
             "COOPER II": "https://i.imgur.com/eI11lah.jpg",  # copper 2
             "COOPER III": "https://i.imgur.com/6CxJoMn.jpg",  # copper 3
