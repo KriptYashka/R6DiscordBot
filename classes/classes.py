@@ -10,11 +10,29 @@ r6_data = []
 
 
 def to_digital(word):
+    """
+    Обработка строки. Оставляет лишь цифры.
+    Возвращает целое число
+    """
     res = ""
     for symbol in word:
         if '0' <= symbol <= '9':
             res += symbol
     return int(res)
+
+def get_insert_format(player_data):
+    req = "INSERT INTO R6_players VALUES ("
+    for item in player_data:
+        req += "{},".format(item)
+    req = req[0:-1] + ");"
+    return req
+
+def get_update_format(player_data):
+    req = "UPDATE R6_players SET kills = {},deaths = {},wins = {},loses = {},mmr = {} " \
+          "WHERE nickname = '{}'".format(player_data[2], player_data[3], player_data[4],
+                                       player_data[5], player_data[6], player_data[1])
+    print(req)
+    return req
 
 rank_icons = {
             "UNRANKED": "https://i.imgur.com/sB11BIz.png",  # unranked
@@ -88,6 +106,8 @@ class PlayerR6:
                 self.rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
 
         self.rank_url = rank_icons[self.rank_name]
+        if self.rank_name == "-":
+            self.rank_name = "UNRANKED"
         self.kills, self.deaths, self.wins, self.loses, \
         self.time_played, self.mmr = (item for item in stats)
 
@@ -101,10 +121,14 @@ class PlayerR6:
         self.last_mmr = self.mmr
 
     def get_data(self):
-        data = (self.member_id, self.nickname, self.kills, self.deaths, self.wins, self.loses, self.mmr)
+        data = [self.member_id, self.nickname, self.kills, self.deaths, self.wins, self.loses, self.mmr]
         return data
 
+
 class DataBaseR6:
+    """
+    Класс базы данных R6.
+    """
     def __init__(self):
         self.conn = sqlite3.connect("r6_players.db")
         self.cursor = self.conn.cursor()
@@ -121,14 +145,20 @@ class DataBaseR6:
         mmr INT
         );""")
 
-    def add_players(self, player_data):
-        self.cursor.execute("INSERT INTO R6_players VALUES (?,?,?,?,?,?,?);", player_data)
+    def add_player(self, player_data):
+        self.cursor.execute(get_insert_format(player_data))
         self.conn.commit()
 
-# async def main():
-#     player = PlayerR6("KriptYashka", 280414805439807489)
-#     db = DataBaseR6()
-#     db.add_players(player.get_data())
-#     print(player.mmr)
-#
-# asyncio.run(main())
+    def update_player(self, player_data):
+        req = get_update_format(player_data)
+        self.cursor.execute(req)
+        self.conn.commit()
+
+async def main():
+    player = PlayerR6("KriptYashka", 280414805439807489)
+    player_data = player.get_data()
+    db = DataBaseR6()
+    db.update_player(player_data)
+    print(player.mmr)
+
+asyncio.run(main())
