@@ -23,7 +23,7 @@ def to_digital(word):
 def get_insert_format(player_data):
     req = "INSERT INTO R6_players VALUES ("
     for item in player_data:
-        req += "{},".format(item)
+        req += "'{}',".format(item)
     req = req[0:-1] + ");"
     return req
 
@@ -31,7 +31,6 @@ def get_update_format(player_data):
     req = "UPDATE R6_players SET kills = {},deaths = {},wins = {},loses = {},mmr = {} " \
           "WHERE nickname = '{}'".format(player_data[2], player_data[3], player_data[4],
                                        player_data[5], player_data[6], player_data[1])
-    print(req)
     return req
 
 rank_icons = {
@@ -88,28 +87,31 @@ class PlayerR6:
 
     def load_stats(self):
         """
-        Загружает основную статистику
+        Загружает основную статистику игрока.
         """
         url = url_tracker + self.nickname
         full_page = requests.get(url)
         soup = BeautifulSoup(full_page.content, 'html.parser')
         stats = []
-        for item in self.parser_data:
-            stats.append(to_digital(soup.find('div', {'data-stat': item}).contents[0]))
-        self.icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
-        trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
-        for item in trn_defstat:
-            div_text = item.find('div', {'class': 'trn-defstat__name'})
-            if div_text.next_element == "MMR":
-                stats.append(to_digital(item.find('div', {'class': 'trn-defstat__value'}).contents[0]))
-            if div_text.next_element == "Rank":
-                self.rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
-
+        try:
+            for item in self.parser_data:
+                stats.append(to_digital(soup.find('div', {'data-stat': item}).contents[0]))
+            self.icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
+            trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
+            for item in trn_defstat:
+                div_text = item.find('div', {'class': 'trn-defstat__name'})
+                if div_text.next_element == "MMR":
+                    stats.append(to_digital(item.find('div', {'class': 'trn-defstat__value'}).contents[0]))
+                if div_text.next_element == "Rank":
+                    self.rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
+        except:
+            return 400
         self.rank_url = rank_icons[self.rank_name]
         if self.rank_name == "-":
             self.rank_name = "UNRANKED"
         self.kills, self.deaths, self.wins, self.loses, \
         self.time_played, self.mmr = (item for item in stats)
+        return 200
 
 
     def update_daily_stats(self):
@@ -120,6 +122,7 @@ class PlayerR6:
         self.last_loses = self.loses
         self.last_mmr = self.mmr
 
+    # TODO: Сделать приватным
     def get_data(self):
         data = [self.member_id, self.nickname, self.kills, self.deaths, self.wins, self.loses, self.mmr]
         return data
@@ -145,20 +148,42 @@ class DataBaseR6:
         mmr INT
         );""")
 
-    def add_player(self, player_data):
-        self.cursor.execute(get_insert_format(player_data))
+    def add_player(self, player):
+        self.cursor.execute(get_insert_format(player.get_data()))
         self.conn.commit()
 
-    def update_player(self, player_data):
-        req = get_update_format(player_data)
+    def update_player(self, player):
+        req = get_update_format(player.get_data())
         self.cursor.execute(req)
         self.conn.commit()
 
-async def main():
-    player = PlayerR6("KriptYashka", 280414805439807489)
-    player_data = player.get_data()
-    db = DataBaseR6()
-    db.update_player(player_data)
-    print(player.mmr)
+    def find_player(self, member_id):
+        req = "SELECT nickname FROM R6_players WHERE discord_id = {}".format(member_id)
+        self.cursor.execute(req)
+        list_nicks = self.cursor.fetchall()
+        if not list_nicks:
+            print("Игрока не существует")
+            return None
+        nick = list_nicks.pop()[0]
+        return PlayerR6(nick, member_id)
 
-asyncio.run(main())
+    def rewrite_nick(self, member_id, nick):
+        req = "SELECT nickname FROM R6_players WHERE discord_id = {}".format(member_id)
+        self.cursor.execute(req)
+        list_nicks = self.cursor.fetchall()
+        if not list_nicks:
+            print("Игрока не существует")
+            return None
+        req = "UPDATE R6_players SET nickname='{}' WHERE discord_id={}".format(nick, member_id)
+        self.cursor.execute(req)
+        self.conn.commit()
+
+def main():
+    player = PlayerR6("H.E.L.L.TAKER", 295589201104338954)
+    db = DataBaseR6()
+
+    db.rewrite_nick(295589201104338954, "HdELL")
+    print("Конец программы")
+
+#asyncio.run(main())
+main()

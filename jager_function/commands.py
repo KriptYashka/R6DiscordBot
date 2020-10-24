@@ -2,8 +2,7 @@ import discord
 import random
 from jager_function.global_variable import *
 from jager_function import jager_maps as r6_maps
-import jager_function.data as data
-from classes.classes import PlayerR6
+from classes.classes import PlayerR6, DataBaseR6
 
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
@@ -148,46 +147,31 @@ async def rating(ctx, *args):
 
 
 async def register_user(bot, ctx, command, *args):
-    """ Структура сообщения:
-                ID Discord - R6 Nick - Wins - Kills """
+    """
+    Запоминает игрока Rainbow Six: Siege в БД
+    """
     # Обработка ошибок
     if command != "меня":
-        return await ctx.send("Что мне запоминать?\nЕсли ты забыл команды - смотри инструкцию")
+        return await ctx.send("Кого запомнить?\nСмотри инструкцию")
     if len(args) == 0:
         emoji_r6 = str(bot.get_emoji(700596539499872256))
         return await ctx.send(
             "Не могу. Мне нужен твой ник в R6 {}\nПример: `Ягер запомни меня KriptYashka`".format(emoji_r6))
 
-    nick, message = await data.get_nick_and_message_memory(bot, ctx.author.id)
-    if nick is not None:
-        if nick == args[0]:
-            return await ctx.send(get_random_item(phrases.ready) + "\nХа! Я тебя и так знаю =)")
-        # Существующий пользователь
-        try:
-            auth = api.Auth(jager_email, jager_password)
-            player = await auth.get_player(args[0], api.Platforms.UPLAY)
-            await player.load_general()
-            new_content = "{} {} {} {}".format(str(ctx.author.id), args[0], player.matches_won, player.kills)
-            await message.edit(content=new_content)
-            await auth.close()
-            return await ctx.send(get_random_item(phrases.ready) + "\nНо я перезаписал твой ник:\n"
-                                                                   "**{}** --> **{}**".format(nick, args[0]))
-        except:
-            await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
+    db = DataBaseR6()
+    member_id = ctx.author.id
 
+    nick = args[0]
+    if False is not None: # TODO: Реализовать перезапись
+        # Существующий пользователь
+        db.rewrite_nick(nick, member_id)
+        return await ctx.send(get_random_item(phrases.ready) + "\nНо я перезаписал твой ник:\n"
+                                                                   "**{}** --> **{}**".format(nick, args[0]))
     else:
         # Новый пользователь
-        channel_memory = data.get_channel_memory(bot)
-        try:
-            auth = api.Auth(jager_email, jager_password)
-            player = await auth.get_player(args[0], api.Platforms.UPLAY)
-            await player.load_general()
-            await channel_memory.send(
-                "{} {} {} {}".format(str(ctx.author.id), args[0], player.matches_won, player.kills))
-            await ctx.send("Запомнил!")
-            await auth.close()
-        except:
-            await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
+        player = PlayerR6(nick, member_id)
+        db.add_player(player)
+        await ctx.send("Запомнил!")
 
 
 async def echo(ctx, words):
