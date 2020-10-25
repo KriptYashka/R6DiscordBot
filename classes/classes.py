@@ -125,10 +125,10 @@ class DataBaseR6:
         self.cursor.execute("INSERT INTO R6_players VALUES (?,?,?,?,?,?,?);", player_data)
         self.conn.commit()
 
-# async def main():
+# def main():
 #     player = PlayerR6("KriptYashka", 280414805439807489)
 #     db = DataBaseR6()
 #     db.add_players(player.get_data())
 #     print(player.mmr)
 #
-# asyncio.run(main())
+# main()
