@@ -37,9 +37,9 @@ rank_icons = {
             "GOLD II": "https://i.imgur.com/ELbGMc7.jpg",  # gold 2
             "GOLD III": "https://i.imgur.com/B0s1o1h.jpg",  # gold 3,
             "GOLD IV": "https://i.imgur.com/6Qg6aaH.jpg",  # gold 4
-            "PLAT I": "https://i.imgur.com/qDYwmah.png",  # plat 1
-            "PLAT II": "https://i.imgur.com/CYMO3Er.png",  # plat 2
-            "PLAT III": "https://i.imgur.com/tmcWQ6I.png",  # plat 3
+            "PLATINUM I": "https://i.imgur.com/qDYwmah.png",  # plat 1
+            "PLATINUM II": "https://i.imgur.com/CYMO3Er.png",  # plat 2
+            "PLATINUM III": "https://i.imgur.com/tmcWQ6I.png",  # plat 3
             "DIAMOND": "https://i.imgur.com/37tSxXm.png",  # diamond
             "CHAMPION": "https://i.imgur.com/VlnwLGk.png",  # champion
 }
@@ -124,6 +124,7 @@ class DataBaseR6:
     def add_players(self, player_data):
         self.cursor.execute("INSERT INTO R6_players VALUES (?,?,?,?,?,?,?);", player_data)
         self.conn.commit()
+
 
 # def main():
 #     player = PlayerR6("KriptYashka", 280414805439807489)
