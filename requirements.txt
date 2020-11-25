@@ -8,5 +8,6 @@ discord~=1.0.1
 aiohttp==3.6.2
 Flask~=1.1.2
 requests~=2.24.0
+r6sapi
 bs4~=0.0.1
 beautifulsoup4~=4.9.3
