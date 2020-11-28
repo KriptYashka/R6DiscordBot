@@ -17,7 +17,7 @@ def to_digital(word):
     return int(res)
 
 rank_icons = {
-            "-": "https://i.imgur.com/sB11BIz.png",  # unranked
+            "Not ranked yet.": "https://i.imgur.com/sB11BIz.png",  # unranked
             "COOPER I": "https://i.imgur.com/0J0jSWB.jpg",  # copper 1
             "COOPER II": "https://i.imgur.com/eI11lah.jpg",  # copper 2
             "COOPER III": "https://i.imgur.com/6CxJoMn.jpg",  # copper 3
@@ -82,14 +82,14 @@ class PlayerR6:
         trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
         for item in trn_defstat:
             div_text = item.find('div', {'class': 'trn-defstat__name'})
-            if div_text.next_element == "MMR":
-                stats.append(to_digital(item.find('div', {'class': 'trn-defstat__value'}).contents[0]))
-            if div_text.next_element == "Rank":
+            if div_text.next_element == "MMR" and self.mmr is None:
+                self.mmr = to_digital(item.find('div', {'class': 'trn-defstat__value'}).contents[0])
+            if div_text.next_element == "Rank"and self.rank_name is None:
                 self.rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
 
-        self.rank_url = rank_icons[self.rank_name]
+        self.rank_url = rank_icons[self.rank_name.replace("\n", "")]
         self.kills, self.deaths, self.wins, self.loses, \
-        self.time_played, self.mmr = (item for item in stats)
+        self.time_played = (item for item in stats)
 
 
     def update_daily_stats(self):
