@@ -3,12 +3,12 @@ import random
 from jager_function.global_variable import *
 from jager_function import jager_maps as r6_maps
 import jager_function.data as data
-from classes.classes import PlayerR6
+from classes.PlayerR6 import PlayerR6
+from classes.Database import DataBaseR6
 
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
     return array[index_arr]
-
 
 async def clear_channel(channel, n=1000):
     async for message in channel.history(limit=n):
@@ -54,7 +54,6 @@ async def send_statistic_r6(ctx, nicks):
         embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.wins / player.loses), inline=True)
         embed.add_field(name="Время игры:", value=str_hours, inline=False)
         await ctx.send(embed=embed)
-
 
 async def instruction(bot, ctx):
     await clear_channel(ctx.channel, 1)

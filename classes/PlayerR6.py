@@ -1,12 +1,9 @@
 from bs4 import BeautifulSoup
 import requests
-import asyncio
-import sqlite3
 
 jager_email = "hunterbot.jager@bk.ru"
 jager_password = "Jagerthebest01"
 url_tracker = "https://r6.tracker.network/profile/pc/"
-r6_data = []
 
 
 def to_digital(word):
@@ -55,10 +52,9 @@ class PlayerR6:
         """
         self.nickname = nickname
         self.member_id = member_id
-        self.parser_data = ["PVPKills", "PVPDeaths", "PVPMatchesWon", "PVPMatchesLost", "PVPTimePlayed"]
 
         # Основная статистика
-        self.kills, self.kills, self.wins, self.loses, self.time_player = None, None, None, None, None
+        self.kills, self.deaths, self.wins, self.loses, self.time_played = None, None, None, None, None
         self.mmr, self.rank_name, self.rank_url = None, None, None
         self.icon_url  = None
 
@@ -72,11 +68,12 @@ class PlayerR6:
         """
         Загружает основную статистику
         """
+        parser_data = ["PVPKills", "PVPDeaths", "PVPMatchesWon", "PVPMatchesLost", "PVPTimePlayed"]
         url = url_tracker + self.nickname
         full_page = requests.get(url)
         soup = BeautifulSoup(full_page.content, 'html.parser')
         stats = []
-        for item in self.parser_data:
+        for item in parser_data:
             stats.append(to_digital(soup.find('div', {'data-stat': item}).contents[0]))
         self.icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
         trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
@@ -91,7 +88,6 @@ class PlayerR6:
         self.kills, self.deaths, self.wins, self.loses, \
         self.time_played = (item for item in stats)
 
-
     def update_daily_stats(self):
         self.load_stats()
         self.last_kills = self.kills
@@ -99,37 +95,3 @@ class PlayerR6:
         self.last_wins = self.wins
         self.last_loses = self.loses
         self.last_mmr = self.mmr
-
-    def get_data(self):
-        data = (self.member_id, self.nickname, self.kills, self.deaths, self.wins, self.loses, self.mmr)
-        return data
-
-class DataBaseR6:
-    def __init__(self):
-        self.conn = sqlite3.connect("r6_players.db")
-        self.cursor = self.conn.cursor()
-        self.create_table()
-
-    def create_table(self):
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS R6_players 
-        (discord_id INT PRIMARY KEY,
-        nickname TEXT, 
-        kills INT, 
-        deaths INT, 
-        wins INT,
-        loses INT,
-        mmr INT
-        );""")
-
-    def add_players(self, player_data):
-        self.cursor.execute("INSERT INTO R6_players VALUES (?,?,?,?,?,?,?);", player_data)
-        self.conn.commit()
-
-
-# def main():
-#     player = PlayerR6("KriptYashka", 280414805439807489)
-#     db = DataBaseR6()
-#     db.add_players(player.get_data())
-#     print(player.mmr)
-#
-# main()
