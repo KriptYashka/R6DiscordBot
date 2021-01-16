@@ -42,7 +42,7 @@ rank_icons = {
 }
 
 class PlayerR6:
-    def __init__(self, nickname, member_id = -1):
+    def __init__(self, nickname = None, member_id = -1):
         """
         Класс игрока R6.
         Имеет статистику: убийства, смерти, победы, проигрыши, время игры, ММР.
@@ -62,7 +62,11 @@ class PlayerR6:
         self.last_kills, self.last_kills, self.last_wins, \
         self.last_loses, self.last_mmr = None, None, None, None, None
 
-        self.load_stats()
+        if nickname is not None:
+            self.load_stats()
+
+    def __iter__(self):
+        return iter([self])
 
     def load_stats(self):
         """
