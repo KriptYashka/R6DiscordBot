@@ -12,7 +12,7 @@ import jager_function.season_events as jager_season
 # TOKEN = 'Your token'
 # email = "Your email"
 # password = "Your Password"
-TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5." + "Xtpr8Q.pyZIcYBL7cyiqINLgyiogRx8ThY"  # Чтобы не переделывать токен
+TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5.Xph"+"rzQ.XUCyt7slrQLM8NBoDAWmvXVfvfw"  # Чтобы не переделывать токен
 bot = commands.Bot(command_prefix='Ягер ')
 
 emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
@@ -21,13 +21,15 @@ emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
 
 """   Стандартные события   """
 
+
 @bot.event
 async def on_ready():
     jager_event.on_ready(bot)
 
+
 @bot.event
 async def on_member_join(member):
-    role = discord.utils.get(member.guild.roles, name="Новичок")
+    role = discord.utils.get(member.guild.roles, name="Разведчик")
     await member.add_roles(role)
 
 
@@ -35,12 +37,14 @@ async def on_member_join(member):
 async def on_raw_reaction_add(event):
     await jager_event.reaction_add(bot, event, emoji_roles)
 
+
 @bot.event
 async def on_raw_reaction_remove(event):
     await jager_event.reaction_delete(bot, event, emoji_roles)
 
 
 """   Разговор с ботом   """
+
 
 @bot.command(pass_context=True)
 async def привет(ctx):
@@ -64,6 +68,7 @@ async def инструкция(ctx):
 async def меню_группировок(ctx):
     await jager_cmd.menu(bot, emoji_roles)
 
+
 @bot.command(pass_context=True)
 async def эхо(ctx, arg):
     await jager_cmd.echo(ctx, arg)
@@ -71,12 +76,14 @@ async def эхо(ctx, arg):
 
 """   Работа с чатом   """
 
+
 @bot.command(pass_context=True)
 async def удали(ctx, arg):
     await jager_cmd.delete_message(ctx, arg)
 
 
 """   Игровые возможности   """
+
 
 @bot.command(pass_context=True)
 async def дай(ctx, command, *args):
@@ -95,6 +102,7 @@ async def запомни(ctx, command, *args):
 
 """   Сезонные события   """
 
+
 def get_random_time():
     start = "12:00"
     end = "22:00"
@@ -103,6 +111,7 @@ def get_random_time():
     hour = random.randint(12, 22)
     minutes = random.randint(0, 59)
     return str(hour) + ":" + str(minutes)
+
 
 async def daily_loop():
     await asyncio.sleep(10)

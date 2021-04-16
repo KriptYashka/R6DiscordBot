@@ -4,6 +4,7 @@ from typing import List
 
 from classes.PlayerR6 import PlayerR6
 
+
 def get_table_form(params):
     if params == "":
         return ""
@@ -12,6 +13,7 @@ def get_table_form(params):
         text += item + ","
     text = text[:-1] + ")"
     return text
+
 
 def get_insert_format(table, params, table_params):
     req = "INSERT INTO {} {} VALUES (".format(table, get_table_form(table_params))
@@ -24,11 +26,20 @@ def get_insert_format(table, params, table_params):
     print(req)
     return req
 
+
 class DB:
     """ Базовый класс БД """
+
     def __init__(self, db_name: str):
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
+
+    def select_item(self, table, id=None):
+        request = "SELECT * FROM {}".format(table)
+        if id is not None:
+            request += " WHERE id == {};".format(id)
+        self.cursor.execute(request)
+        return self.cursor.fetchall()
 
     def execute_and_commit(self, request):
         """ Выполняет запрос и фиксирует изменения в БД """
@@ -44,7 +55,7 @@ class DB:
         request_insert = get_insert_format(table, data, col_fields)
         self.execute_and_commit(request_insert)
 
-    def select(self, table, search_item_name = None, search_item_value = None):
+    def select(self, table, search_item_name=None, search_item_value=None):
         """ Поиск объектов в таблице """
         if search_item_name is None:
             request = "SELECT * FROM {};".format(table)
@@ -54,13 +65,24 @@ class DB:
         self.cursor.execute(request)
         return self.cursor.fetchall()
 
-    def delete(self, table, search_item_name = None, search_item_value = None):
+    def delete(self, table, search_item_name=None, search_item_value=None):
         """ Удаление объекта в таблице """
         request = "DELETE FROM {} WHERE {} = {}".format(table, search_item_name, search_item_value)
         self.execute_and_commit(request)
 
+    def get_id(self, table):
+        request = "SELECT * FROM {}".format(table)
+        self.cursor.execute(request)
+        result = self.cursor.fetchall()
+        arr = []
+        for item in result:
+            arr.append(item[0])
+        return arr
+
+
 class DataBaseR6(DB):
     """ Класс базы данных с игроками R6 """
+
     def __init__(self):
         super().__init__("../db_jager.db")
         self.table_name = "R6_players"
@@ -80,10 +102,11 @@ class DataBaseR6(DB):
         """ Добавляет в таблицу новых игроков """
         for player in players:
             player_request = "null {} {} {} {} {} {} {}".format(player.member_id, player.nickname, player.kills,
-                                                           player.deaths, player.wins, player.loses, player.mmr).split()
+                                                                player.deaths, player.wins, player.loses,
+                                                                player.mmr).split()
             super().insert(self.table_name, player_request)
 
-    def get_all_players(self, search_item_name = None, search_item_value = None):
+    def get_all_players(self, search_item_name=None, search_item_value=None):
         """ Возвращает массив всех игроков.
         Можно выбрать параметры поиска."""
         fetch = super().select(self.table_name, search_item_name, search_item_value)
@@ -94,3 +117,8 @@ class DataBaseR6(DB):
             player.wins, player.loses, player.mmr = [item for item in data]
             players.append(player)
         return players
+
+
+def main():
+    db = DataBaseR6()
+    db.add_players()

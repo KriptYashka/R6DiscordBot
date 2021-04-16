@@ -6,13 +6,16 @@ import jager_function.data as data
 from classes.PlayerR6 import PlayerR6
 from classes.Database import DataBaseR6
 
+
 def get_random_item(array):
     index_arr = random.randint(0, len(array) - 1)
     return array[index_arr]
 
+
 async def clear_channel(channel, n=1000):
     async for message in channel.history(limit=n):
         await message.delete()
+
 
 async def get_player_batch_r6(list_nicks):
     auth = api.Auth(jager_email, jager_password)
@@ -30,6 +33,7 @@ async def send_statistic_r6(ctx, nicks):
     await ctx.send(get_random_item(phrases.ready))
     for nick in nicks:
         player = PlayerR6(nick)
+        await player.load_stats()
         hours = player.time_played
 
         # Лексика
@@ -54,6 +58,7 @@ async def send_statistic_r6(ctx, nicks):
         embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.wins / player.loses), inline=True)
         embed.add_field(name="Время игры:", value=str_hours, inline=False)
         await ctx.send(embed=embed)
+
 
 async def instruction(bot, ctx):
     await clear_channel(ctx.channel, 1)
@@ -106,24 +111,30 @@ async def menu(bot, emoji_roles):
 
 
 async def get_something(bot, ctx, command, *args):
+    #  Возвращает карты из R6
     if command == "карту":
         map_name = args[0]
         await r6_maps.send_map(ctx, map_name)
+
+    #  Возвращает статистику
     if command == "статистику":
+        #  Пользователя из БД
         if args[0] == "мою":
             nick, message = await data.get_nick_and_message_memory(bot, ctx.author.id)
             if nick is None:
                 await ctx.send('Я не знаю твоего ника в R6. Но я могу запомнить тебя!\n'
                                'Пример: `Ягер запомни меня KriptYashka`')
             await send_statistic_r6(ctx, [nick])
+        #  Пользоателя с никнеймом
         else:
             await send_statistic_r6(ctx, args)
 
 
 async def rating(ctx, *args):
     await ctx.send(get_random_item(phrases.ready))
+
+    #  Совместимость игроков для рейтинга
     if args[0] == "вместе":
-        # Совместимость игроков для рейтинга
         nicks = args[1:]
         max_rank = 0
         min_rank = 10000
@@ -134,13 +145,13 @@ async def rating(ctx, *args):
             min_rank = min(min_rank, mmr)
         delta = max_rank - min_rank
         str_delta = "Текущая разница: " + str(delta) + " MMR"
-        if delta >= 1000:
+        if delta >= 700:
             text = "К сожалению, вы не сможете сыграть... \n" + str_delta
         else:
             text = "Можно играть без проблем! \n" + str_delta
         await ctx.send(text)
+    # Рейтинг игроков по отдельности
     else:
-        # Рейтинг игроков по отдельности
         nicks = args[:]
         for nick in nicks:
             await ctx.send("**" + nick + "** - " + str(PlayerR6(nick).mmr) + ' MMR')
@@ -157,11 +168,14 @@ async def register_user(bot, ctx, command, *args):
         return await ctx.send(
             "Не могу. Мне нужен твой ник в R6 {}\nПример: `Ягер запомни меня KriptYashka`".format(emoji_r6))
 
+    # При корректном вводе
     nick, message = await data.get_nick_and_message_memory(bot, ctx.author.id)
+    # Есть ли такой ник в памяти
     if nick is not None:
+        # Если ник одинаковый с памятью
         if nick == args[0]:
             return await ctx.send(get_random_item(phrases.ready) + "\nХа! Я тебя и так знаю =)")
-        # Существующий пользователь
+        # Перезапись имени пользователя
         try:
             auth = api.Auth(jager_email, jager_password)
             player = await auth.get_player(args[0], api.Platforms.UPLAY)
@@ -169,6 +183,7 @@ async def register_user(bot, ctx, command, *args):
             new_content = "{} {} {} {}".format(str(ctx.author.id), args[0], player.matches_won, player.kills)
             await message.edit(content=new_content)
             await auth.close()
+
             return await ctx.send(get_random_item(phrases.ready) + "\nНо я перезаписал твой ник:\n"
                                                                    "**{}** --> **{}**".format(nick, args[0]))
         except:
@@ -181,8 +196,10 @@ async def register_user(bot, ctx, command, *args):
             auth = api.Auth(jager_email, jager_password)
             player = await auth.get_player(args[0], api.Platforms.UPLAY)
             await player.load_general()
+
             await channel_memory.send(
                 "{} {} {} {}".format(str(ctx.author.id), args[0], player.matches_won, player.kills))
+
             await ctx.send("Запомнил!")
             await auth.close()
         except:
