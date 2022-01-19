@@ -1,15 +1,15 @@
 import discord
-import random
 from jager_function.global_variable import *
 from jager_function import jager_maps as r6_maps
 import jager_function.data as data
 from classes.PlayerR6 import PlayerR6
 from classes.Database import DataBaseR6
+from jager_function import jager_phrases
+from discord.ext import commands
 
 
-def get_random_item(array):
-    index_arr = random.randint(0, len(array) - 1)
-    return array[index_arr]
+async def send_hello(bot: commands.Bot, message: discord.Message):
+    bot.send(jager_phrases.get_hello(message.author))
 
 
 async def clear_channel(channel, n=1000):

@@ -2,7 +2,7 @@ from jager_function.global_variable import *
 
 import jager_function.data as data
 from prettytable import PrettyTable
-from jager_function.commands import clear_channel, get_random_item
+from jager_function.commands import clear_channel
 
 
 async def get_table_r6(bot):

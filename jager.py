@@ -14,7 +14,8 @@ import jager_function.season_events as jager_season
 # email = "Your email"
 # password = "Your Password"
 TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5.Xph" + "rzQ.XUCyt7slrQLM8NBoDAWmvXVfvfw"  # Чтобы не переделывать токен
-bot = commands.Bot(command_prefix='Ягер ')
+prefix = "Ягер "
+bot = commands.Bot(command_prefix=prefix)
 
 emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
                756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
@@ -46,24 +47,17 @@ async def on_raw_reaction_remove(event):
 
 """   Разговор с ботом   """
 
-cmd = {r"привет": phrases.get_hello}
+cmd = {r"привет|здарова|ку": jager_cmd.send_hello}
 
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author.bot:
+    if message.author.bot or not message.content.lower().startswith(prefix.lower()):
         return
-    for action in cmd.items():
-        if re.match(action[0]):
-            action[1](bot, message)
-    text = phrases.get_hello(message.author)
-    await message.channel.send(text)
-
-
-# @bot.command(pass_context=True)
-# async def привет(ctx):
-#     text = jager_cmd.get_random_item(phrases.hello).format(str(ctx.message.author.name))
-#     await ctx.send(text)
+    ctx = message.content.lower()
+    for name, action in cmd.items():
+        if re.match(name, ctx):
+            await action(bot, message)
 
 
 @bot.command(pass_context=True)
