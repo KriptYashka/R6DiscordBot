@@ -5,10 +5,11 @@ import discord
 from discord.ext import commands
 import re
 
-from jager_function import jager_phrases as phrases
-import jager_function.events as jager_event
-import jager_function.commands as jager_cmd
-import jager_function.season_events as jager_season
+import view.talk
+from view import phrases as phrases
+import view.events as jager_event
+import view.commands as jager_cmd
+import view.season_events as jager_season
 
 # TOKEN = 'Your token'
 # email = "Your email"
@@ -47,29 +48,25 @@ async def on_raw_reaction_remove(event):
 
 """   Разговор с ботом   """
 
-cmd = {r"привет|здарова|ку": jager_cmd.send_hello}
+re_cmd = {
+    r"привет|здарова|ку": view.talk.send_hello,
+    r"как играть|как научит[ь]ся играть": view.talk.send_how_to_play
+}
 
 
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot or not message.content.lower().startswith(prefix.lower()):
         return
-    ctx = message.content.lower()
-    for name, action in cmd.items():
+    ctx = message.content.replace(prefix, "").lower()
+    for name, action in re_cmd.items():
         if re.match(name, ctx):
             await action(bot, message)
 
 
 @bot.command(pass_context=True)
-async def как(ctx, arg):
-    if arg == 'научиться' or arg == 'играть':
-        text = "Никак. Удали к чертям эту игру!"
-        await ctx.send(text)
-
-
-@bot.command(pass_context=True)
 async def инструкция(ctx):
-    await jager_cmd.instruction(bot, ctx)
+    await view.talk.instruction(bot, ctx)
 
 
 @bot.command(pass_context=True)
@@ -79,7 +76,7 @@ async def меню_группировок(ctx):
 
 @bot.command(pass_context=True)
 async def эхо(ctx, arg):
-    await jager_cmd.echo(ctx, arg)
+    await view.talk.echo(ctx, arg)
 
 
 """   Работа с чатом   """

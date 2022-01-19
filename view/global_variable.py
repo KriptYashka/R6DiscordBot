@@ -1,5 +1,5 @@
 import r6sapi as api
-from jager_function import jager_phrases as phrases
+from view import phrases as phrases
 
 EU = api.RankedRegions.EU
 jager_email = "hunterbot.jager@bk.ru"

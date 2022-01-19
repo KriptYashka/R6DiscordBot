@@ -1,8 +1,8 @@
-from jager_function.global_variable import *
+from view.global_variable import *
 
-import jager_function.data as data
+import view.data as data
 from prettytable import PrettyTable
-from jager_function.commands import clear_channel
+from view.commands import clear_channel
 
 
 async def get_table_r6(bot):

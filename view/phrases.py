@@ -2,10 +2,10 @@ import random
 
 
 def get_ready():
-    text = ['Ну давай попробуем... Есть', 'Ладно, ладно. Держи.', 'Без проблем.',
-            'Чуть синей изоленты и... Готово!', 'За **ACOG** сделаю всё, что угодно.',
-            'Потерпи чуть, я не такой быстрый. У меня 2 скорости.\n*звуки плача*',
-            'Поставил **СОГ**.', 'Vierundzwanzigstundenglück!', 'Подержи-ка мой ягермейстер...\nХоба!']
+    text = ['Ну давай попробуем...', 'Сейчас делаю.', 'Без проблем.',
+            'Чуть синей изоленты и...', 'За **ACOG** сделаю всё, что угодно.',
+            'Потерпи чуть, я не такой быстрый. У меня 2 скорости.\n*плачет по-ягерски*',
+            'Ставлю **Систему отражения гранат**.', 'Vierundzwanzigstundenglück!', 'Подержи-ка мой ягермейстер...']
     return random.choice(text)
 
 
@@ -13,7 +13,7 @@ def get_hello(name):
     if name is None:
         name = "Незнакомец"
     text = ['Guten Tag, {}', 'Здаров {}', 'Привет {}', '{} и тебе привет.', "Ку, {}"]
-    return random.choice(text)
+    return random.choice(text).format(name)
 
 
 def get_no_roots():
@@ -41,4 +41,9 @@ def get_top_winner(name, wins):
 
 def get_random_phrase():
     text = ['Как-то тихо здесь... Пошли в R6!', '**IMPOSTER**']
+    return random.choice(text)
+
+
+def get_how_to_play():
+    text = ['Никак. Просто удаляй эту игру.']
     return random.choice(text)

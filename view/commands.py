@@ -1,15 +1,8 @@
 import discord
-from jager_function.global_variable import *
-from jager_function import jager_maps as r6_maps
-import jager_function.data as data
+from view.global_variable import *
+from view import r6maps as r6_maps
+import view.data as data
 from classes.PlayerR6 import PlayerR6
-from classes.Database import DataBaseR6
-from jager_function import jager_phrases
-from discord.ext import commands
-
-
-async def send_hello(bot: commands.Bot, message: discord.Message):
-    bot.send(jager_phrases.get_hello(message.author))
 
 
 async def clear_channel(channel, n=1000):
@@ -58,29 +51,6 @@ async def send_statistic_r6(ctx, nicks):
         embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.wins / player.loses), inline=True)
         embed.add_field(name="Время игры:", value=str_hours, inline=False)
         await ctx.send(embed=embed)
-
-
-async def instruction(bot, ctx):
-    await clear_channel(ctx.channel, 1)
-    guild_name = ctx.guild.name
-    emoji_pulse = str(bot.get_emoji(701757818965065759))  # Pulse
-    emoji_point = str(bot.get_emoji(700599296650903583))
-    emoji_r6 = str(bot.get_emoji(700596539499872256))
-    text = "{} Привет, ты на сервере **{}** {}\n\n".format(emoji_pulse, guild_name, emoji_pulse)
-    text += "Если ты не знаком с правиами, советую тебе посмотреть их. Здесь очень много интересного" \
-            " и самое главное - приятное окружение.\n\n"
-    text += "Что я сообственно могу:\n\n"
-
-    text += "{} `Ягер привет` - поздороваться с тобой\n\n".format(emoji_point)
-    text += "{} `Ягер дай статистику UPlayNick1 UPlayNick2...` - найду основную статистику в R6 {}\n\n".format(
-        emoji_point, emoji_r6)
-    text += "{} `Ягер рейтинг UPlayNick1 UPlayNick2...` - скину MMR каждого игрока.\n\n".format(emoji_point)
-    text += "{} `Ягер рейтинг вместе UPlayNick1 UPlayNick2...`" \
-            " - проанализирую, можно ли вам идти в рейтинг.\n\n".format(emoji_point)
-    text += "{} `Ягер запомни меня UPlayNick` - постараюсь запомнить, как выглядит твой ник. Но это не точно =)\n\n" \
-        .format(emoji_point)
-    text += "{} `Ягер инструкция` - покажу тебе ещё раз, что я умею.\n\n".format(emoji_point)
-    await ctx.send(text)
 
 
 async def delete_message(ctx, arg):
@@ -174,7 +144,7 @@ async def register_user(bot, ctx, command, *args):
     if nick is not None:
         # Если ник одинаковый с памятью
         if nick == args[0]:
-            return await ctx.send(get_random_item(phrases.ready) + "\nХа! Я тебя и так знаю =)")
+            return await ctx.send(phrases.get_random_phrase() + "\nХа! Я тебя и так знаю =)")
         # Перезапись имени пользователя
         try:
             auth = api.Auth(jager_email, jager_password)
@@ -184,8 +154,8 @@ async def register_user(bot, ctx, command, *args):
             await message.edit(content=new_content)
             await auth.close()
 
-            return await ctx.send(get_random_item(phrases.ready) + "\nНо я перезаписал твой ник:\n"
-                                                                   "**{}** --> **{}**".format(nick, args[0]))
+            return await ctx.send(phrases.get_random_phrase() + "\nНо я перезаписал твой ник:\n"
+                                                                "**{}** --> **{}**".format(nick, args[0]))
         except:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
 
@@ -204,8 +174,3 @@ async def register_user(bot, ctx, command, *args):
             await auth.close()
         except:
             await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
-
-
-async def echo(ctx, words):
-    await clear_channel(ctx.channel, 1)
-    await ctx.send(words)
