@@ -116,7 +116,7 @@ class DataBaseR6(DataBase):
         super().__init__("r6.db")
         self.players_table_name = "players"
         self.players_cols = {
-            "id": "INT PRIMARY KEY",
+            "id": "INT PRIMARY KEY AUTOINCREMENT",
             "discord_id": "INT",
             "nickname": "TEXT",
             "kills": "INT",

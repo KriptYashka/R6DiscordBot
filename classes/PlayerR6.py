@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-import r6sapi as api
 import asyncio
 
 jager_email = "hunterbot.jager@bk.ru"
@@ -45,13 +44,12 @@ def to_digital(word):
 
 
 async def get_player_data(nick):
-    auth = api.Auth(jager_email, jager_password)
-    player_data = await auth.get_player(nick, api.Platforms.UPLAY)
-    player_batch = await auth.get_player_batch(names=[nick],
-                                               platform=api.Platforms.UPLAY)
-    await player_data.load_general()
-    await player_data.load_level()
-    await auth.close()
+    # player_data = await auth.get_player(nick, api.Platforms.UPLAY)
+    # player_batch = await auth.get_player_batch(names=[nick],
+    #                                            platform=api.Platforms.UPLAY)
+    # await player_data.load_general()
+    # await player_data.load_level()
+    # await auth.close()
 
     # Ranks
     mmr = None
