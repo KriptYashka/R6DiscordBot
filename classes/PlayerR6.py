@@ -74,8 +74,15 @@ async def get_player_data(nick):
     icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
     player_data.url = icon_url
 
-    rank = {"name": rank_name, "mmr": mmr, "rank_url": rank_url}
-    result = {"player": player_data, "rank": rank}
+    rank = {
+        "name": rank_name,
+        "mmr": mmr,
+        "rank_url": rank_url
+    }
+    result = {
+        "player": player_data,
+        "rank": rank
+    }
     return result
 
 
@@ -89,7 +96,7 @@ class PlayerR6:
         При инициализации подгружаются все данные.
         """
         self.nickname = nickname
-        self.member_id = member_id
+        self.discord_id = member_id
 
         # Основная статистика
         self.kills, self.deaths, self.wins, self.loses, self.time_played = None, None, None, None, None
@@ -100,10 +107,9 @@ class PlayerR6:
         self.revives = None
         self.suicides = None
 
-        if self.nickname is not None:
-            self.load_stats()
+        # if self.nickname is not None:
+        #     self.load_stats()
 
-    @asyncio.coroutine
     def load_stats(self):
         r6data = yield from get_player_data(self.nickname)
         player = r6data["player"]

@@ -17,7 +17,10 @@ def get_table_form(params):
 def get_insert_format(table, params: dict):
     req = "INSERT INTO {} {} VALUES (".format(table, get_table_form(params.keys()))
     for item in params.values():
-        req += '"{}",'.format(item)
+        if item is None:
+            req += f"null,"
+        else:
+            req += f'"{item}",'
     req = req[:-1] + ");"
     return req
 
@@ -114,7 +117,7 @@ class DataBaseR6(DataBase):
         self.players_table_name = "players"
         self.players_cols = {
             "id": "INT PRIMARY KEY",
-            "member_id": "INT",
+            "discord_id": "INT",
             "nickname": "TEXT",
             "kills": "INT",
             "deaths": "INT",
@@ -126,7 +129,7 @@ class DataBaseR6(DataBase):
 
     def create_table_player(self):
         request = f"CREATE TABLE IF NOT EXISTS {self.players_table_name}("
-        for name, type_db in self.players_cols:
+        for name, type_db in self.players_cols.items():
             request += f"{name} {type_db},"
         request = request[:-1] + ");"
         self.cursor.execute(request)
@@ -135,7 +138,8 @@ class DataBaseR6(DataBase):
         """ Добавляет в таблицу новых игроков """
         for player in players:
             player_request = {
-                "member_id": player.member_id,
+                "id": None,
+                "discord_id": player.discord_id,
                 "nickname": player.nickname,
                 "kills": player.kills,
                 "deaths": player.deaths,
@@ -152,7 +156,7 @@ class DataBaseR6(DataBase):
         fetch = self.select(self.players_table_name, search_item_name, search_item_value)
         players = []
         for data in fetch:
-            player = PlayerR6
+            player = PlayerR6()
             item_id, player.member_id, player.nickname, player.kills, player.deaths, \
             player.wins, player.loses, player.mmr = [item for item in data]
             players.append(player)
@@ -161,6 +165,8 @@ class DataBaseR6(DataBase):
 
 def main():
     db = DataBaseR6()
+    player = PlayerR6("TestPlayer", 42)
+    db.add_players(player)
 
 
 if __name__ == '__main__':
