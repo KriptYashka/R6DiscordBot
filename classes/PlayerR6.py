@@ -8,32 +8,33 @@ jager_password = "Jagerthebest01"
 url_tracker = "https://r6.tracker.network/profile/pc/"
 
 rank_icons = {
-            "Not ranked yet.": "https://i.imgur.com/sB11BIz.png",  # unranked
-            "COOPER I": "https://i.imgur.com/0J0jSWB.jpg",  # copper 1
-            "COOPER II": "https://i.imgur.com/eI11lah.jpg",  # copper 2
-            "COOPER III": "https://i.imgur.com/6CxJoMn.jpg",  # copper 3
-            "COOPER IV": "https://i.imgur.com/ehILQ3i.jpg",  # copper 4
-            "COOPER V": "https://i.imgur.com/B8NCTyX.png",  # copper 5
-            "BRONZE I": "https://i.imgur.com/hmPhPBj.jpg",  # bronze 1
-            "BRONZE II": "https://i.imgur.com/9AORiNm.jpg",  # bronze 2
-            "BRONZE III": "https://i.imgur.com/QD5LYD7.jpg",  # bronze 3
-            "BRONZE IV": "https://i.imgur.com/42AC7RD.jpg",  # bronze 4
-            "BRONZE V": "https://i.imgur.com/TIWCRyO.png",   # bronze 5
-            "SILVER I": "https://i.imgur.com/KmFpkNc.jpg",  # silver 1
-            "SILVER II": "https://i.imgur.com/EswGcx1.jpg",  # silver 2
-            "SILVER III": "https://i.imgur.com/m8GToyF.jpg",  # silver 3
-            "SILVER IV": "https://i.imgur.com/D36ZfuR.jpg",  # silver 4
-            "SILVER V": "https://i.imgur.com/PY2p17k.png",  # silver 5
-            "GOLD I": "https://i.imgur.com/ffDmiPk.jpg",  # gold 1
-            "GOLD II": "https://i.imgur.com/ELbGMc7.jpg",  # gold 2
-            "GOLD III": "https://i.imgur.com/B0s1o1h.jpg",  # gold 3,
-            "GOLD IV": "https://i.imgur.com/6Qg6aaH.jpg",  # gold 4
-            "PLATINUM I": "https://i.imgur.com/qDYwmah.png",  # plat 1
-            "PLATINUM II": "https://i.imgur.com/CYMO3Er.png",  # plat 2
-            "PLATINUM III": "https://i.imgur.com/tmcWQ6I.png",  # plat 3
-            "DIAMOND": "https://i.imgur.com/37tSxXm.png",  # diamond
-            "CHAMPION": "https://i.imgur.com/VlnwLGk.png",  # champion
+    "Not ranked yet.": "https://i.imgur.com/sB11BIz.png",  # unranked
+    "COOPER I": "https://i.imgur.com/0J0jSWB.jpg",  # copper 1
+    "COOPER II": "https://i.imgur.com/eI11lah.jpg",  # copper 2
+    "COOPER III": "https://i.imgur.com/6CxJoMn.jpg",  # copper 3
+    "COOPER IV": "https://i.imgur.com/ehILQ3i.jpg",  # copper 4
+    "COOPER V": "https://i.imgur.com/B8NCTyX.png",  # copper 5
+    "BRONZE I": "https://i.imgur.com/hmPhPBj.jpg",  # bronze 1
+    "BRONZE II": "https://i.imgur.com/9AORiNm.jpg",  # bronze 2
+    "BRONZE III": "https://i.imgur.com/QD5LYD7.jpg",  # bronze 3
+    "BRONZE IV": "https://i.imgur.com/42AC7RD.jpg",  # bronze 4
+    "BRONZE V": "https://i.imgur.com/TIWCRyO.png",  # bronze 5
+    "SILVER I": "https://i.imgur.com/KmFpkNc.jpg",  # silver 1
+    "SILVER II": "https://i.imgur.com/EswGcx1.jpg",  # silver 2
+    "SILVER III": "https://i.imgur.com/m8GToyF.jpg",  # silver 3
+    "SILVER IV": "https://i.imgur.com/D36ZfuR.jpg",  # silver 4
+    "SILVER V": "https://i.imgur.com/PY2p17k.png",  # silver 5
+    "GOLD I": "https://i.imgur.com/ffDmiPk.jpg",  # gold 1
+    "GOLD II": "https://i.imgur.com/ELbGMc7.jpg",  # gold 2
+    "GOLD III": "https://i.imgur.com/B0s1o1h.jpg",  # gold 3,
+    "GOLD IV": "https://i.imgur.com/6Qg6aaH.jpg",  # gold 4
+    "PLATINUM I": "https://i.imgur.com/qDYwmah.png",  # plat 1
+    "PLATINUM II": "https://i.imgur.com/CYMO3Er.png",  # plat 2
+    "PLATINUM III": "https://i.imgur.com/tmcWQ6I.png",  # plat 3
+    "DIAMOND": "https://i.imgur.com/37tSxXm.png",  # diamond
+    "CHAMPION": "https://i.imgur.com/VlnwLGk.png",  # champion
 }
+
 
 def to_digital(word):
     res = ""
@@ -51,8 +52,6 @@ async def get_player_data(nick):
     await player_data.load_general()
     await player_data.load_level()
     await auth.close()
-
-
 
     # Ranks
     mmr = None
@@ -78,6 +77,7 @@ async def get_player_data(nick):
     rank = {"name": rank_name, "mmr": mmr, "rank_url": rank_url}
     result = {"player": player_data, "rank": rank}
     return result
+
 
 class PlayerR6:
     def __init__(self, nickname=None, member_id=-1):

@@ -18,9 +18,9 @@ TOKEN = "NzAwMzUyMTg3MjE3MjE1NTU5.Xph" + "rzQ.XUCyt7slrQLM8NBoDAWmvXVfvfw"  # Ч
 prefix = "Ягер "
 bot = commands.Bot(command_prefix=prefix)
 
-emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
-               756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
-               756611247889317918: 'Valorant', 761243822716878859: 'Imposter'}
+# emoji_roles = {756609869326581840: 'Apex Legends', 756609380593434654: 'Dota 2',
+#                756609572172595380: 'Counter-Strike', 700596539499872256: 'R6', 701007348730167346: 'PUBG',
+#                756611247889317918: 'Valorant', 761243822716878859: 'Imposter'}
 
 """   Стандартные события   """
 
@@ -36,21 +36,23 @@ async def on_member_join(member):
     await member.add_roles(role)
 
 
-@bot.event
-async def on_raw_reaction_add(event):
-    await jager_event.reaction_add(bot, event, emoji_roles)
-
-
-@bot.event
-async def on_raw_reaction_remove(event):
-    await jager_event.reaction_delete(bot, event, emoji_roles)
+# @bot.event
+# async def on_raw_reaction_add(event):
+#     await jager_event.reaction_add(bot, event, emoji_roles)
+#
+#
+# @bot.event
+# async def on_raw_reaction_remove(event):
+#     await jager_event.reaction_delete(bot, event, emoji_roles)
 
 
 """   Разговор с ботом   """
 
 re_cmd = {
     r"привет|здарова|ку": view.talk.send_hello,
-    r"как играть|как научит[ь]ся играть": view.talk.send_how_to_play
+    r"как играть|как научит[ь]ся играть": view.talk.send_how_to_play,
+    r"инструкция|help": view.talk.instruction,
+    r"эхо": view.talk.echo,
 }
 
 
@@ -63,83 +65,37 @@ async def on_message(message: discord.Message):
         if re.match(name, ctx):
             await action(bot, message)
 
-
-@bot.command(pass_context=True)
-async def инструкция(ctx):
-    await view.talk.instruction(bot, ctx)
-
-
-@bot.command(pass_context=True)
-async def меню_группировок(ctx):
-    await jager_cmd.menu(bot, emoji_roles)
-
-
-@bot.command(pass_context=True)
-async def эхо(ctx, arg):
-    await view.talk.echo(ctx, arg)
-
+# @bot.command(pass_context=True)
+# async def меню_группировок(ctx):
+#     await jager_cmd.menu(bot, emoji_roles)
 
 """   Работа с чатом   """
 
 
-@bot.command(pass_context=True)
-async def удали(ctx, arg):
-    await jager_cmd.delete_message(ctx, arg)
+# @bot.command(pass_context=True)
+# async def удали(ctx, arg):
+#     await jager_cmd.delete_message(ctx, arg)
 
 
 """   Игровые возможности   """
 
 
-@bot.command(pass_context=True)
-async def дай(ctx, command, *args):
-    await jager_cmd.get_something(bot, ctx, command, *args)
-
-
-@bot.command(pass_context=True)
-async def рейтинг(ctx, *args):
-    await jager_cmd.rating(ctx, *args)
-
-
-@bot.command(pass_context=True)
-async def запомни(ctx, command, *args):
-    await jager_cmd.register_user(bot, ctx, command, *args)
-
-
-"""   Сезонные события   """
-
-
-def get_random_time():
-    start = "12:00"
-    end = "22:00"
-    if random.randint(1, 10) > 4:
-        return None
-    hour = random.randint(12, 22)
-    minutes = random.randint(0, 59)
-    return str(hour) + ":" + str(minutes)
-
-
-async def daily_loop():
-    await asyncio.sleep(10)
-    time_alarm = "19:00"
-    random_time = get_random_time()
-    while True:
-        time_now = time.strftime("%H:%M", time.localtime())
-        if time_now == time_alarm:
-            # Обновление таблицы лидеров и награды
-            random_time = get_random_time()
-            await jager_season.update_daily_event_r6(bot)
-        elif time_now[3:] == "15" or time_now[3:] == "45":
-            # Обновление таблицы лидеров каждый час
-            await jager_season.update_table_r6(bot)
-
-        if random_time is not None:
-            if time_now == random_time:
-                await jager_season.send_random_msg(bot)
-        await asyncio.sleep(60)
+# @bot.command(pass_context=True)
+# async def дай(ctx, command, *args):
+#     await jager_cmd.get_something(bot, ctx, command, *args)
+#
+#
+# @bot.command(pass_context=True)
+# async def рейтинг(ctx, *args):
+#     await jager_cmd.rating(ctx, *args)
+#
+#
+# @bot.command(pass_context=True)
+# async def запомни(ctx, command, *args):
+#     await jager_cmd.register_user(bot, ctx, command, *args)
 
 
 def main():
-    bot.loop.create_task(daily_loop())
     bot.run(TOKEN)
 
 
