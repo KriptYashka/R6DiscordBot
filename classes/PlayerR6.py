@@ -38,50 +38,56 @@ rank_icons = {
 def to_digital(word):
     res = ""
     for symbol in word:
-        if '0' <= symbol <= '9':
+        if ('0' <= symbol <= '9') or symbol == ".":
             res += symbol
-    return int(res)
+    return float(res)
 
 
-async def get_player_data(nick):
-    # player_data = await auth.get_player(nick, api.Platforms.UPLAY)
-    # player_batch = await auth.get_player_batch(names=[nick],
-    #                                            platform=api.Platforms.UPLAY)
-    # await player_data.load_general()
-    # await player_data.load_level()
-    # await auth.close()
-
-    # Ranks
-    mmr = None
-    rank_name = None
+def get_player_data(nick):
     url = url_tracker + nick
     full_page = requests.get(url)
     soup = BeautifulSoup(full_page.content, 'html.parser')
     trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
 
+    data = {
+        "best mmr": None,
+        "level": None,
+        "wins": None,
+        "losses": None,
+        "win %": None,
+        "headshot %": None,
+        "headshots": None,
+        "kills": None,
+        "deaths": None,
+        "kd": None,
+        "time played": None,
+        "mmr": None,
+        "matches played": None,
+        "melee kills": None,
+        "blind kills": None,
+    }
+
+    rank_name = None
+
     for item in trn_defstat:
-        div_text = item.find('div', {'class': 'trn-defstat__name'})
+        item_name = item.find('div', {'class': 'trn-defstat__name'}).next_element.lower()
+        if item_name in data:
+            if data[item_name] is None:
+                div_value = item.find('div', {'class': 'trn-defstat__value'})
+                div_value_stylized = item.find('div', {'class': 'trn-defstat__value-stylized'})
+                if div_value is not None and len(div_value.contents):
+                    data[item_name] = to_digital(div_value.contents[0])
+                if div_value_stylized is not None and len(div_value_stylized.contents):
+                    data[item_name] = to_digital(div_value_stylized.contents[0])
 
-        if div_text.next_element == "MMR" and mmr is None:
-            mmr = to_digital(item.find('div', {'class': 'trn-defstat__value'}).contents[0])
-
-        if div_text.next_element == "Rank" and rank_name is None:
+        if item_name == "rank" and rank_name is None:
             rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
 
-    rank_url = rank_icons[rank_name.replace("\n", "")]
-    icon_url = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
-    player_data.url = icon_url
+    data["rank_name"] = rank_name
+    data["rank_url"] = rank_icons[rank_name.replace("\n", "")]
+    data["icon_url"] = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
 
-    rank = {
-        "name": rank_name,
-        "mmr": mmr,
-        "rank_url": rank_url
-    }
-    result = {
-        "player": player_data,
-        "rank": rank
-    }
-    return result
+    return data
 
 
 class PlayerR6:
@@ -102,26 +108,21 @@ class PlayerR6:
         self.icon_url = None
         self.headshots = None
         self.level = None
-        self.revives = None
-        self.suicides = None
 
-        # if self.nickname is not None:
-        #     self.load_stats()
+        if self.nickname is not None:
+            self.load_stats()
 
     def load_stats(self):
-        r6data = yield from get_player_data(self.nickname)
-        player = r6data["player"]
-        self.rank_name = r6data["rank"]["name"]
-        self.mmr = r6data["rank"]["mmr"]
-        self.rank_url = r6data["rank"]["rank_url"]
-        self.kills, self.deaths = player.kills, player.deaths
-        self.wins, self.loses, self.time_played = \
-            player.matches_won, player.matches_lost, int(player.time_played / 60 / 60)
-        self.icon_url = player.url
-        self.headshots = player.headshots
-        self.level = player.level
-        self.revives = player.revives
-        self.suicides = player.suicides
+        data = get_player_data(self.nickname)
+        self.rank_name = data["rank_name"]
+        self.mmr = data["mmr"]
+        self.rank_url = data["rank_url"]
+        self.kills, self.deaths = data["kills"], data["deaths"]
+        self.wins, self.loses = data["wins"], data["losses"]
+        self.time_played = data["time played"]
+        self.icon_url = data["icon_url"]
+        self.headshots = data["headshots"]
+        self.level = data["level"]
 
     def __iter__(self):
         return iter([self])
@@ -133,3 +134,12 @@ class PlayerR6:
         last_wins = self.wins
         last_loses = self.loses
         last_mmr = self
+
+
+def main():
+    player = PlayerR6("KriptYashka", 42)
+    print(player)
+
+
+if __name__ == '__main__':
+    main()

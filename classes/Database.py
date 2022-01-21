@@ -118,7 +118,7 @@ class DataBaseR6(DataBase):
         self.players_cols = {
             "id": "INT PRIMARY KEY AUTOINCREMENT",
             "discord_id": "INT",
-            "nickname": "TEXT",
+            "nickname": "TEXT NOT NULL",
             "kills": "INT",
             "deaths": "INT",
             "wins": "INT",
@@ -166,6 +166,7 @@ class DataBaseR6(DataBase):
 def main():
     db = DataBaseR6()
     player = PlayerR6("TestPlayer", 42)
+    player.load_stats()
     db.add_players(player)
 
 
