@@ -155,6 +155,9 @@ class DataBaseR6(DataBase):
             return res.pop()
         return None
 
+    def is_exist(self, nickname, **kwargs):
+        return super().is_exist(self.players_table_name, "nickname", nickname)
+
     def add_players(self, players: PlayerR6):
         """ Добавляет в таблицу новых игроков """
         for player in players:
@@ -186,7 +189,7 @@ class DataBaseR6(DataBase):
 
 def main():
     db = DataBaseR6()
-    row = db.get_player_row_by_id(1)
+    row = db.get_player_row_by_discord_id(1)
     print(row)
     # player = PlayerR6("KriptYashka", 42)
     # player.load_stats()

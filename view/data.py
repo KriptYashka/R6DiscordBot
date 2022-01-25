@@ -11,9 +11,11 @@ def get_channel_memory(bot):
     return bot.get_channel(channel_memory_id)
 
 
-async def get_nickname(bot: commands.Bot, discord_id: int):
+def get_nickname(bot: commands.Bot, discord_id: int):
     db = DataBaseR6()
     row = db.get_player_row_by_discord_id(discord_id)
+    if row is None:
+        return None
     return row["nickname"]
 
 
