@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from view import phrases
-from view.commands import clear_channel
+from view.cmd import clear_channel
 
 
 async def send_hello(bot: commands.Bot, message: discord.Message):

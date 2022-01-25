@@ -47,3 +47,8 @@ def get_random_phrase():
 def get_how_to_play():
     text = ['Никак. Просто удаляй эту игру.']
     return random.choice(text)
+
+
+def get_incorrect_input():
+    text = ['К сожалению, не могу понять вас...']
+    return random.choice(text)

@@ -46,6 +46,9 @@ def to_digital(word):
 def get_player_data(nick):
     url = url_tracker + nick
     full_page = requests.get(url)
+    if full_page.status_code != 200:
+        if full_page.status_code == 404:
+            return None
     soup = BeautifulSoup(full_page.content, 'html.parser')
     trn_defstat = soup.find_all('div', {'class': 'trn-defstat'})
 
@@ -83,8 +86,10 @@ def get_player_data(nick):
         if item_name == "rank" and rank_name is None:
             rank_name = item.find('div', {'class': 'trn-defstat__value'}).contents[0]
 
-    data["rank_name"] = rank_name
-    data["rank_url"] = rank_icons[rank_name.replace("\n", "")]
+    data["rank_name"], data["rank_url"] = None, None
+    if rank_name is not None:
+        data["rank_name"] = rank_name
+        data["rank_url"] = rank_icons[rank_name.replace("\n", "")]
     data["icon_url"] = soup.find('div', {'class': 'trn-profile-header__avatar'}).find('img').attrs['src']
 
     return data

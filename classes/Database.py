@@ -44,11 +44,19 @@ def get_update_format(table, params: dict, where_params: dict):
     return req
 
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 class DataBase:
     """База данных"""
 
     def __init__(self, name="default_db"):
         self.conn = sqlite3.connect(name + ".db")
+        self.conn.row_factory = dict_factory
         self.cursor = self.conn.cursor()
 
     def create_default_table(self, name: str, properties_str):
@@ -76,10 +84,11 @@ class DataBase:
 
     def select(self, table, search_item_name=None, search_item_value=None):
         """Поиск объектов в таблице"""
-        if search_item_name is None:
-            request = "SELECT * FROM {};".format(table)
-        else:
-            request = "WHERE {} = {};".format(search_item_name, search_item_value)
+        request = "SELECT * FROM {}".format(table)
+        if search_item_name is not None:
+            request += " WHERE {} = {}".format(search_item_name, search_item_value)
+        request += ";"
+        print(request)
         self.cursor.execute(request)
         return self.cursor.fetchall()
 
@@ -116,13 +125,13 @@ class DataBaseR6(DataBase):
         super().__init__("r6.db")
         self.players_table_name = "players"
         self.players_cols = {
-            "id": "INT PRIMARY KEY AUTOINCREMENT",
-            "discord_id": "INT",
+            "id": "INTEGER PRIMARY KEY AUTOINCREMENT",
+            "discord_id": "INTEGER",
             "nickname": "TEXT NOT NULL",
-            "kills": "INT",
-            "deaths": "INT",
-            "wins": "INT",
-            "loses": "INT",
+            "kills": "INTEGER",
+            "deaths": "INTEGER",
+            "wins": "INTEGER",
+            "loses": "INTEGER",
             "mmr": "FLOAT",
         }
         self.create_table_player()
@@ -133,6 +142,18 @@ class DataBaseR6(DataBase):
             request += f"{name} {type_db},"
         request = request[:-1] + ");"
         self.cursor.execute(request)
+
+    def get_player_row_by_discord_id(self, uid):
+        res = self.select(self.players_table_name, "discord_id", uid)
+        if len(res):
+            return res.pop()
+        return None
+
+    def get_player_row_by_nickname(self, nickname):
+        res = self.select(self.players_table_name, "nickname", nickname)
+        if len(res):
+            return res.pop()
+        return None
 
     def add_players(self, players: PlayerR6):
         """ Добавляет в таблицу новых игроков """
@@ -165,9 +186,11 @@ class DataBaseR6(DataBase):
 
 def main():
     db = DataBaseR6()
-    player = PlayerR6("TestPlayer", 42)
-    player.load_stats()
-    db.add_players(player)
+    row = db.get_player_row_by_id(1)
+    print(row)
+    # player = PlayerR6("KriptYashka", 42)
+    # player.load_stats()
+    # db.add_players(player)
 
 
 if __name__ == '__main__':

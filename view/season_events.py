@@ -2,7 +2,7 @@ from view.global_variable import *
 
 import view.data as data
 from prettytable import PrettyTable
-from view.commands import clear_channel
+from view.cmd import clear_channel
 
 
 async def get_table_r6(bot):

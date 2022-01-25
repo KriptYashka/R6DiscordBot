@@ -8,7 +8,7 @@ import re
 import view.talk
 from view import phrases as phrases
 import view.events as jager_event
-import view.commands as jager_cmd
+import view.cmd as jager_cmd
 import view.season_events as jager_season
 
 # TOKEN = 'Your token'
@@ -53,6 +53,8 @@ re_cmd = {
     r"как играть|как научит[ь]ся играть": view.talk.send_how_to_play,
     r"инструкция|help": view.talk.instruction,
     r"эхо": view.talk.echo,
+
+    r"запомни меня": view.cmd
 }
 
 
