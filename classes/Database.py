@@ -151,16 +151,22 @@ class DataBaseR6(DataBase):
         request = request[:-1] + ");"
         self.cursor.execute(request)
 
-    def get_player_row_by_discord_id(self, uid):
+    def get_player_row_by_discord_id(self, uid, last_record=False):
         res = self.select(self.players_table_name, "discord_id", uid)
         if len(res):
-            return res.pop()
+            if last_record:
+                return res.pop()
+            else:
+                return res
         return None
 
-    def get_player_row_by_nickname(self, nickname):
+    def get_player_row_by_nickname(self, nickname, last_record=False):
         res = self.select(self.players_table_name, "nickname", nickname)
         if len(res):
-            return res.pop()
+            if last_record:
+                return res.pop()
+            else:
+                return res
         return None
 
     def is_exist(self, nickname, **kwargs):
@@ -202,14 +208,23 @@ class DataBaseR6(DataBase):
             players.append(player)
         return players
 
+    def update_player_nickname(self, discord_id: int, new_nickname: str):
+        new_data = {
+            "nickname": new_nickname,
+        }
+        where = {
+            "discord_id": discord_id,
+        }
+        self.update_item(self.players_table_name, new_data, discord_id)
+
 
 def main():
     db = DataBaseR6()
-    row = db.get_player_row_by_discord_id(1)
+    player = PlayerR6("KriptYashka", 42)
+    player.load_stats()
+    db.add_players(player)
+    row = db.get_player_row_by_discord_id(42)
     print(row)
-    # player = PlayerR6("KriptYashka", 42)
-    # player.load_stats()
-    # db.add_players(player)
 
 
 if __name__ == '__main__':

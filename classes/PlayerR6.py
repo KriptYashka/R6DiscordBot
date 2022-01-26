@@ -139,8 +139,8 @@ class PlayerR6:
         self.win_percentage = data["win %"]
         self.matches = data["matches played"]
         self.kd = data["kd"]
-        self.melee_kills = data["melee_kills"]
-        self.blind_kills = data["blind_kills"]
+        self.melee_kills = data["melee kills"]
+        self.blind_kills = data["blind kills"]
 
     def __iter__(self):
         return iter([self])
