@@ -70,8 +70,15 @@ async def get_something(bot, ctx, command, *args):
             await send_statistic_r6(ctx, args)
 
 
+async def get_statistic_player_r6(bot: commands.Bot, message: discord.Message):
+    args = message.content.split()[2:]
+    if len(args) == 0:
+        # Статистика зарегистрированного игрока
+        pass
+
 async def rating(ctx, *args):
-    await ctx.send(get_random_item(phrases.ready))
+    """ Проверяет игроков на совместимость рейтинга """
+    await ctx.send(phrases.get_ready())
 
     #  Совместимость игроков для рейтинга
     if args[0] == "вместе":
@@ -85,7 +92,7 @@ async def rating(ctx, *args):
             min_rank = min(min_rank, mmr)
         delta = max_rank - min_rank
         str_delta = "Текущая разница: " + str(delta) + " MMR"
-        if delta >= 700:
+        if delta >= 1000:
             text = "К сожалению, вы не сможете сыграть... \n" + str_delta
         else:
             text = "Можно играть без проблем! \n" + str_delta
@@ -102,7 +109,7 @@ async def register_user(bot: commands.Bot, message: discord.Message):
                 ID Discord - R6 Nick - Wins - Kills """
     # Обработка ошибок
     words = message.content.split()
-    ctx = message.channel
+    ctx = message
 
     if len(words) <= 4:
         return await ctx.send(phrases.get_incorrect_input())
@@ -112,29 +119,29 @@ async def register_user(bot: commands.Bot, message: discord.Message):
         return await ctx.send("Возможно, ты хотел сказать `Ягер запомни меня NickName`")
 
     # При корректном вводе
-    nick = data.get_nickname(bot, ctx.author.id)
-    if nick is not None:
-        await existing_user(nick, ctx, args)
+    db_nick = data.get_nickname(bot, ctx.author.id)
+    if db_nick is not None:
+        await existing_user(db_nick, message, args[1])
     else:
-        await new_user(nick, ctx, args)
+        await new_user(args[1], message)
 
 
-async def existing_user(nick, ctx, args):
-    message_nick = args[1]
+async def existing_user(nick, message: discord.Message, message_nick):
     if nick == message_nick:
-        return await ctx.send(phrases.get_random_phrase() + "\nХа! Я тебя и так знаю =)")
+        return await message.channel.send(phrases.get_random_phrase() + "\nХа! Я тебя и так знаю =)")
     # Перезапись имени пользователя
     try:
-        # db = DataBaseR6()
-        # db.update_player(nick, message_nick)
-        return await ctx.send(phrases.get_random_phrase() +
-                              f"\nЯ перезаписал твой ник:\n**{nick}** --> **{message_nick}**")
+        db = DataBaseR6()
+        db.update_player_nickname(message.author.id, message_nick)
+        return await message.channel.send(phrases.get_random_phrase() +
+                                          f"\nЯ перезаписал твой ник:\n**{nick}** --> **{message_nick}**")
     except:
-        return await ctx.send('Хмм... Игрока {} не существует.'.format(nick))
+        return await message.channel.send('Хмм... Игрока {} не существует.'.format(nick))
 
 
-async def new_user(nick, ctx, args):
+async def new_user(nick, message: discord.Message):
     db = DataBaseR6()
-    player = PlayerR6(nick, ctx.author.id)
+    player = PlayerR6(nick, message.author.id)
+    # TODO: Если пользователь существует
     db.add_players(player)
-    await ctx.send(phrases.get_ready())
+    await message.channel.send(phrases.get_ready())  # TODO: Новая фраза о пользователе
