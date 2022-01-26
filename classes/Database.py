@@ -131,8 +131,16 @@ class DataBaseR6(DataBase):
             "kills": "INTEGER",
             "deaths": "INTEGER",
             "wins": "INTEGER",
+            "win_percentage": "FLOAT",
+            "headshots": "INTEGER",
             "loses": "INTEGER",
             "mmr": "FLOAT",
+            "datetime": "TEXT",
+            "matches_played": "INTEGER",
+            "melee_kills": "INTEGER",
+            "blind_kills": "INTEGER",
+            "time_played": "INTEGER",
+            "kd": "FLOAT",
         }
         self.create_table_player()
 
@@ -168,8 +176,16 @@ class DataBaseR6(DataBase):
                 "kills": player.kills,
                 "deaths": player.deaths,
                 "wins": player.wins,
-                "loses": player.loses,
+                "loses": player.losses,
+                "win_percentage": player.win_percentage,
+                "headshots": player.headshots,
                 "mmr": player.mmr,
+                "datetime": datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S"),
+                "matches_played": player.matches,
+                "melee_kills": player.melee_kills,
+                "blind_kills": player.blind_kills,
+                "time_played": player.time_played,
+                "kd": player.kd,
             }
 
             self.add_item(self.players_table_name, player_request)
@@ -182,7 +198,7 @@ class DataBaseR6(DataBase):
         for data in fetch:
             player = PlayerR6()
             item_id, player.member_id, player.nickname, player.kills, player.deaths, \
-            player.wins, player.loses, player.mmr = [item for item in data]
+            player.wins, player.losses, player.mmr = [item for item in data]
             players.append(player)
         return players
 

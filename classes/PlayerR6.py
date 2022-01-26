@@ -108,11 +108,17 @@ class PlayerR6:
         self.discord_id = member_id
 
         # Основная статистика
-        self.kills, self.deaths, self.wins, self.loses, self.time_played = None, None, None, None, None
+        self.kills, self.deaths, self.wins, self.losses, self.time_played = None, None, None, None, None
         self.mmr, self.rank_name, self.rank_url = None, None, None
         self.icon_url = None
         self.headshots = None
+        self.headshot_percentage = None
         self.level = None
+        self.win_percentage = None
+        self.matches = None
+        self.kd = None
+        self.melee_kills = None
+        self.blind_kills = None
 
         if self.nickname is not None:
             self.load_stats()
@@ -123,11 +129,18 @@ class PlayerR6:
         self.mmr = data["mmr"]
         self.rank_url = data["rank_url"]
         self.kills, self.deaths = data["kills"], data["deaths"]
-        self.wins, self.loses = data["wins"], data["losses"]
+        self.wins, self.losses = data["wins"], data["losses"]
         self.time_played = data["time played"]
         self.icon_url = data["icon_url"]
         self.headshots = data["headshots"]
+        self.headshot_percentage = data["headshot %"]
         self.level = data["level"]
+        self.time_played = data["time played"]
+        self.win_percentage = data["win %"]
+        self.matches = data["matches played"]
+        self.kd = data["kd"]
+        self.melee_kills = data["melee_kills"]
+        self.blind_kills = data["blind_kills"]
 
     def __iter__(self):
         return iter([self])
@@ -137,7 +150,7 @@ class PlayerR6:
         last_kills = self.kills
         last_deaths = self.deaths
         last_wins = self.wins
-        last_loses = self.loses
+        last_loses = self.losses
         last_mmr = self
 
 

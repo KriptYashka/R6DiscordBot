@@ -31,8 +31,8 @@ async def send_statistic_r6(ctx, nicks):
         embed.add_field(name="Смерти", value=player.deaths, inline=True)
         embed.add_field(name="Убийства/Смерти:", value="{:.2f}".format(player.kills / player.deaths), inline=True)
         embed.add_field(name="Победы:", value=player.wins, inline=True)
-        embed.add_field(name="Поражения:", value=player.loses, inline=True)
-        embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.wins / player.loses), inline=True)
+        embed.add_field(name="Поражения:", value=player.losses, inline=True)
+        embed.add_field(name="Победы/Поражения:", value="{:.2f}".format(player.wins / player.losses), inline=True)
         embed.add_field(name="Время игры:", value=str_hours, inline=False)
         await ctx.send(embed=embed)
 
