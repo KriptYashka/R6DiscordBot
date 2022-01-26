@@ -40,7 +40,7 @@ def get_where_format(params: dict):
 
 
 def get_update_format(table, params: dict, where_params: dict):
-    req = "UPDATE {} SET {} WHERE {}".format(table, get_set_format(params), get_where_format(where_params))
+    req = f"UPDATE {table} SET {get_set_format(params)} WHERE {get_where_format(where_params)}"
     return req
 
 
@@ -79,8 +79,8 @@ class DataBase:
 
     def update_item(self, table: str, params: dict, where_params: dict):
         """Обновляет в таблице строки"""
-        request_insert = get_update_format(table, params, where_params)
-        self.execute_and_commit(request_insert)
+        request_update = get_update_format(table, params, where_params)
+        self.execute_and_commit(request_update)
 
     def select(self, table, search_item_name=None, search_item_value=None):
         """Поиск объектов в таблице"""
@@ -208,6 +208,15 @@ class DataBaseR6(DataBase):
             players.append(player)
         return players
 
+    def update_player_discord_id(self, nickname: str, new_discord_id: int):
+        new_data = {
+            "discord_id": new_discord_id,
+        }
+        where = {
+            "nickname": nickname,
+        }
+        self.update_item(self.players_table_name, new_data, where)
+
     def update_player_nickname(self, discord_id: int, new_nickname: str):
         new_data = {
             "nickname": new_nickname,
@@ -215,16 +224,11 @@ class DataBaseR6(DataBase):
         where = {
             "discord_id": discord_id,
         }
-        self.update_item(self.players_table_name, new_data, discord_id)
+        self.update_item(self.players_table_name, new_data, where)
 
 
 def main():
     db = DataBaseR6()
-    player = PlayerR6("KriptYashka", 42)
-    player.load_stats()
-    db.add_players(player)
-    row = db.get_player_row_by_discord_id(42)
-    print(row)
 
 
 if __name__ == '__main__':
