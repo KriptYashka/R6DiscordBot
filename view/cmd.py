@@ -63,9 +63,9 @@ async def get_something(bot, ctx, command, *args):
             nick, message = await data.get_nickname(bot, ctx.author.id)
             if nick is None:
                 await ctx.send('Я не знаю твоего ника в R6. Но я могу запомнить тебя!\n'
-                               'Пример: `Ягер запомни меня KriptYashka`')
+                               'Пример: `Ягер запомни меня KriptYashka`')  # TODO: Рандомные фразы
             await send_statistic_r6(ctx, [nick])
-        #  Пользоателя с никнеймом
+        #  Пользователя с никнеймом
         else:
             await send_statistic_r6(ctx, args)
 
@@ -75,6 +75,7 @@ async def get_statistic_player_r6(bot: commands.Bot, message: discord.Message):
     if len(args) == 0:
         # Статистика зарегистрированного игрока
         pass
+
 
 async def rating(ctx, *args):
     """ Проверяет игроков на совместимость рейтинга """
@@ -142,6 +143,6 @@ async def existing_user(nick, message: discord.Message, message_nick):
 async def new_user(nick, message: discord.Message):
     db = DataBaseR6()
     player = PlayerR6(nick, message.author.id)
-    # TODO: Если пользователь существует
+    # TODO: Если игрок не существует
     db.add_players(player)
     await message.channel.send(phrases.get_ready())  # TODO: Новая фраза о пользователе
