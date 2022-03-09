@@ -54,7 +54,7 @@ re_cmd = {
     r"инструкция|help": view.talk.instruction,
     r"эхо": view.talk.echo,
 
-    r"запомни меня": view.cmd
+    r"запомни меня": view.cmd.register_user,
 }
 
 

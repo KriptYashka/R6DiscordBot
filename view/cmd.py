@@ -77,7 +77,7 @@ async def get_statistic_player_r6(bot: commands.Bot, message: discord.Message):
         pass
 
 
-async def rating(ctx, *args):
+async def rating(bot: commands.Bot, message: discord.Message):
     """ Проверяет игроков на совместимость рейтинга """
     await ctx.send(phrases.get_ready())
 
@@ -110,7 +110,7 @@ async def register_user(bot: commands.Bot, message: discord.Message):
                 ID Discord - R6 Nick - Wins - Kills """
     # Обработка ошибок
     words = message.content.split()
-    ctx = message
+    ctx = message.channel
 
     if len(words) <= 4:
         return await ctx.send(phrases.get_incorrect_input())
@@ -140,7 +140,7 @@ async def existing_user(nick, message: discord.Message, message_nick):
         return await message.channel.send('Хмм... Игрока {} не существует.'.format(nick))
 
 
-async def new_user(nick, message: discord.Message):
+async def new_user(nick: str, message: discord.Message):
     db = DataBaseR6()
     player = PlayerR6(nick, message.author.id)
     # TODO: Если игрок не существует
